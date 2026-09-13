@@ -1,0 +1,62 @@
+# 🍬 LeetCode 75 — Day 2: Kids With the Greatest Number of Candies
+
+**📌 Problem:** [1431. Kids With the Greatest Number of Candies](https://leetcode.com/problems/kids-with-the-greatest-number-of-candies/)
+**🏷️ Topics:** Arrays
+**⚡ Difficulty:** Easy
+
+---
+
+## 🧠 Intuition
+
+A kid can become the "richest" (or tie for richest) if giving them all the extra candies lets them match or beat whoever currently has the most candies. So the whole problem boils down to one number: the current maximum candy count. Once we know that, checking each kid is just a simple comparison.
+
+---
+
+## 🛠️ Approach
+
+1. Find the maximum value in the `candies` array — this is the highest candy count any kid currently has.
+2. Create a `result` vector of the same size, initialized to `false`.
+3. Loop through each kid:
+   - If `candies[i] + extraCandies >= maxC`, that kid can have the greatest number of candies → set `result[i] = true`.
+4. Return the `result` vector.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n)` — one pass to find the max with `max_element`, and one pass to build the result.
+- **Space complexity:** `O(n)` for the output `result` vector (excluding the output, extra space used is `O(1)`).
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), using STL `vector<int>`, `vector<bool>`, and the `max_element` algorithm from `<algorithm>`.
+
+```cpp
+class Solution {
+public:
+    vector<bool> kidsWithCandies(vector<int>& candies, int extraCandies) {
+        int n = candies.size();
+
+        int maxC = *max_element(begin(candies), end(candies));
+        vector<bool> result(n, false);
+
+        for (int i = 0; i < n; i++) {
+            if (candies[i] + extraCandies >= maxC) {
+                result[i] = true;
+            }
+        }
+        return result;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+When a problem asks "can X reach the maximum if given some boost," find the maximum once, then it becomes a simple `O(n)` comparison pass — no need to recompute anything per element.
+
+---
+✅ **Status:** Accepted — all test cases passed
