@@ -1,0 +1,47 @@
+🚀 Merge Strings Alternately | Clean & Simple String Traversal
+
+💡 Intuition
+The idea is simple: take one character from word1, then one from word2, and keep alternating. 🔄
+
+If one string finishes before the other, simply append the remaining characters from the longer string.
+
+For example:
+
+abc + pqr → a p b q c r → apbqcr ✨
+
+🛠️ Approach
+Maintain two pointers, i for word1 and j for word2.
+Add a character from word1 whenever i is valid.
+Add a character from word2 whenever j is valid.
+Continue until both strings are completely processed.
+The use of || in the loop is important because one string may be longer than the other. ✅
+
+⏱️ Complexity
+Time Complexity: O(n + m)
+Space Complexity: O(n + m) for the resulting string
+💻 Code
+class Solution {
+public:
+    string mergeAlternately(string word1, string word2) {
+        string ans = "";
+        int i = 0, j = 0;
+
+        while (i < word1.size() || j < word2.size()) {
+
+            if (i < word1.size()) {
+                ans += word1[i];
+                i++;
+            }
+
+            if (j < word2.size()) {
+                ans += word2[j];
+                j++;
+            }
+        }
+
+        return ans;
+    }
+};
+✨ Key takeaway: Two-pointer traversal is a simple but powerful pattern for handling multiple sequences efficiently.
+
+#DSA #Cpp #Coding #Programming #ProblemSolving #DataStructures #Algorithms #CodeNewbie
