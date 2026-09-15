@@ -1,0 +1,79 @@
+# 🗜️ LeetCode 75 — Day 8: String Compression
+
+**📌 Problem:** [443. String Compression](https://leetcode.com/problems/string-compression/)
+**🏷️ Topics:** Array, Two Pointers, String
+**⚡ Difficulty:** Medium
+
+---
+
+## 🧠 Intuition
+
+The compressed result is always shorter than or equal to the original, so it can be built **in place** inside the same array — no need for extra storage. The core idea is: for every run of identical consecutive characters, write the character once, and if the run length is more than 1, follow it with the digits of that count.
+
+---
+
+## 🛠️ Approach
+
+1. Use `idx` as a write pointer, starting at `0` — this tracks where the next compressed character should go.
+2. Loop through the array with `i`:
+   - Note the current character `ch = chars[i]`.
+   - Use an inner `while` loop to count how many times `ch` repeats consecutively, advancing `i` as it counts.
+   - Write `ch` at `chars[idx++]`.
+   - If `count > 1`, convert `count` to a string with `to_string()` and write each digit into the array one by one at `chars[idx++]`.
+   - Since the inner `while` loop already advanced `i` one step past the run, decrement `i` by 1 (`i--`) so the outer `for` loop's `i++` lands correctly on the next unvisited character.
+3. After the loop, resize `chars` down to `idx` — this trims off the leftover characters from the original (longer) array.
+4. Return `idx`, the new compressed length.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n)` — every character is visited exactly once across the inner `while` loop; the outer `for` loop and inner `while` loop together only ever advance through the array once.
+- **Space complexity:** `O(1)` extra space — the compression is done in place within `chars`; the only extra memory is the small `count`-to-string conversion, whose length is bounded by a constant number of digits.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), modifying the input `vector<char>` in place using a two-pointer (`i` read pointer, `idx` write pointer) technique.
+
+```cpp
+class Solution {
+public:
+    int compress(vector<char>& chars) {
+        int n = chars.size();
+        int idx = 0;
+
+        for (int i = 0; i < n; i++) {
+            char ch = chars[i];
+            int count = 0;
+
+            while (i < n && chars[i] == ch) {
+                count++; i++;
+            }
+            if (count == 1) {
+                chars[idx++] = ch;
+            } else {
+                chars[idx++] = ch;
+                string str = to_string(count);
+
+                for (char dig : str) {
+                    chars[idx++] = dig;
+                }
+            }
+            i--;
+        }
+        chars.resize(idx);
+        return idx;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+In-place array compression works by using two pointers with different roles — one (`i`) reads ahead to measure a run's length, the other (`idx`) writes the compressed result behind it. Since the write pointer never outpaces the read pointer, it's always safe to overwrite the array as you go.
+
+---
+✅ **Status:** Accepted — all test cases passed
