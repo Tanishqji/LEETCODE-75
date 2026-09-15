@@ -1,0 +1,67 @@
+# 🌼 LeetCode 75 — Day 3: Can Place Flowers
+
+**📌 Problem:** [605. Can Place Flowers](https://leetcode.com/problems/can-place-flowers/)
+**🏷️ Topics:** Array, Greedy
+**⚡ Difficulty:** Easy
+
+---
+
+## 🧠 Intuition
+
+Flowers can't be planted in adjacent plots, so a plot can only be planted if it's empty **and** both its neighbors are empty (or don't exist, i.e. it's at the edge of the bed). This is a classic greedy problem — plant a flower the moment you find a valid empty spot, since doing so never blocks a future planting.
+
+---
+
+## 🛠️ Approach
+
+1. Loop through every plot in `flowerbed`.
+2. For each plot that is `0` (empty), check:
+   - `left_khali` → true if it's the first plot, or the plot to its left is empty.
+   - `right_khali` → true if it's the last plot, or the plot to its right is empty.
+3. If both are true, plant a flower there (`flowerbed[i] = 1`) and decrement `n`.
+4. After scanning the whole bed, return `true` if `n <= 0` (meaning all required flowers were successfully placed), otherwise `false`.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(l)` — a single pass over the flowerbed of length `l`.
+- **Space complexity:** `O(1)` — flowers are planted in place, no extra data structures used.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), modifying the input `vector<int>` in place.
+
+```cpp
+class Solution {
+public:
+    bool canPlaceFlowers(vector<int>& flowerbed, int n) {
+        int l = flowerbed.size();
+
+        for (int i = 0; i < l; i++) {
+            if (flowerbed[i] == 0) {
+                bool left_khali = (i == 0) || (flowerbed[i - 1] == 0);
+                bool right_khali = (i == l - 1) || (flowerbed[i + 1] == 0);
+
+                if (left_khali && right_khali) {
+                    flowerbed[i] = 1;
+                    n--;
+                }
+            }
+        }
+
+        return n <= 0;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+Greedy works here because planting a flower as soon as a valid spot is found never makes things worse — it can only free up room or leave the rest of the bed unaffected. Checking boundaries with `i == 0` / `i == l - 1` is a clean way to avoid out-of-bounds access.
+
+---
+✅ **Status:** Accepted — all test cases passed
