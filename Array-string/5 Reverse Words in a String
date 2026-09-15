@@ -1,0 +1,74 @@
+
+
+# 🔁 LeetCode 75 — Day 5: Reverse Words in a String
+
+**📌 Problem:** [151. Reverse Words in a String](https://leetcode.com/problems/reverse-words-in-a-string/)
+**🏷️ Topics:** String, Two Pointers
+**⚡ Difficulty:** Medium
+
+---
+
+## 🧠 Intuition
+
+The words need to end up in reverse order, but each word itself must stay spelled correctly (not reversed letter-by-letter). A neat trick: reverse the *entire* string first — that flips the word order for free, but it also scrambles every individual word backwards. So the fix is simple: walk through this fully-reversed string, pull out each word, and reverse just that word back to its correct spelling before appending it to the answer.
+
+This also conveniently handles messy input — multiple spaces between words, or leading/trailing spaces — since empty "words" (produced by consecutive spaces) are just skipped.
+
+---
+
+## 🛠️ Approach
+
+1. Reverse the whole string `s` in place. This reverses the order of the words, but each word's characters are now backwards.
+2. Walk through the reversed string character by character:
+   - Build up a `word` by collecting characters until a space is hit.
+   - Reverse that `word` back to its correct spelling.
+   - If the word isn't empty (i.e. it wasn't just consecutive spaces), append it to `ans` with a leading space separator.
+3. Since every word gets a space prepended, the final `ans` starts with an extra leading space — strip it off with `ans.substr(1)` before returning.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n)` — the string is reversed once, and every character is visited once more while extracting and re-reversing words.
+- **Space complexity:** `O(n)` — for the `ans` string and the temporary `word` buffer.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), using `std::string`, `reverse()` from `<algorithm>`, and manual word-splitting on spaces.
+
+```cpp
+class Solution {
+public:
+    string reverseWords(string s) {
+        int n = s.length();
+        string ans = "";
+
+        reverse(s.begin(), s.end());
+
+        for (int i = 0; i < n; i++) {
+            string word = "";
+
+            while (i < n && s[i] != ' ') {
+                word += s[i];
+                i++;
+            }
+            reverse(word.begin(), word.end());
+            if (word.length() > 0) {
+                ans += " " + word;
+            }
+        }
+        return ans.substr(1);
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+Reversing the whole string first is a clever way to flip word order without tracking positions manually — the cost is that each word's letters get scrambled too, but re-reversing each extracted word fixes that cheaply in the same pass. The `word.length() > 0` check is what makes this robust against extra spaces.
+
+---
+✅ **Status:** Accepted — all test cases passed
