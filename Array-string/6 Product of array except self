@@ -1,0 +1,63 @@
+# ✖️ LeetCode 75 — Day 7: Product of Array Except Self
+
+**📌 Problem:** [238. Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/)
+**🏷️ Topics:** Array, Prefix Sum
+**⚡ Difficulty:** Medium
+
+---
+
+## 🧠 Intuition
+
+For any index `i`, the answer is "product of everything to its left" multiplied by "product of everything to its right." Instead of recomputing that from scratch for every index (which would be `O(n²)`), both pieces can be built incrementally in two linear passes: one accumulating a running **prefix product** from the left, and one accumulating a running **suffix product** from the right.
+
+---
+
+## 🛠️ Approach
+
+1. Initialize `ans` as a vector of `1`s, size `n`.
+2. **Prefix pass (left → right):** starting from `i = 1`, set `ans[i] = ans[i-1] * nums[i-1]`. This builds the product of all elements to the left of `i`. (`ans[0]` stays `1` since there's nothing to its left — that's why the loop starts at `1`, not `0`.)
+3. **Suffix pass (right → left):** keep a running `suffix` variable starting at `1`. Going from `i = n-2` down to `0`, multiply `suffix` by `nums[i+1]` first, then multiply it into `ans[i]`. This layers in the product of everything to the right of `i`.
+4. Return `ans` — each index now holds prefix product × suffix product, i.e. the product of every element except itself.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n)` — two linear passes over the array.
+- **Space complexity:** `O(1)` extra space — only the `suffix` variable is used beyond the required output array (the output array itself doesn't count toward extra space).
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), using `vector<int>` and a prefix/suffix product technique without division.
+
+```cpp
+class Solution {
+public:
+    vector<int> productExceptSelf(vector<int>& nums) {
+        int n = nums.size();
+        vector<int> ans(n, 1);
+
+        for (int i = 1; i < n; i++) {
+            ans[i] = ans[i - 1] * nums[i - 1];
+        }
+
+        int suffix = 1;
+        for (int i = n - 2; i >= 0; i--) {
+            suffix *= nums[i + 1];
+            ans[i] *= suffix;
+        }
+        return ans;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+Watch loop boundaries carefully when a formula references `i-1` or `i+1` — the first version of this solution accessed `ans[-1]`, which is undefined behavior in C++ (vectors don't bounds-check by default). Starting the prefix loop at `i = 1` instead of `i = 0` avoids that out-of-bounds access entirely, since `ans[0]` needs no computation.
+
+---
+✅ **Status:** Accepted — all test cases passed
