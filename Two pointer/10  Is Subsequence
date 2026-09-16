@@ -1,0 +1,80 @@
+# 🔍 LeetCode 75 — Day 10: Is Subsequence
+
+**📌 Problem:** [392. Is Subsequence](https://leetcode.com/problems/is-subsequence/)
+**🏷️ Topics:** Two Pointers, String, Binary Search, Greedy
+**⚡ Difficulty:** Easy
+
+---
+
+## 🧠 Intuition
+
+To check if `s` is a subsequence of `t`, we need to match each character of `s` to a position in `t`, in order, without reusing an earlier position. A greedy strategy works well: for every character in `s`, always pick the **earliest possible occurrence** of it in `t` that comes *after* the position of the previous match. If that's always possible, `s` is a valid subsequence.
+
+Instead of scanning `t` linearly for every character of `s` (which works but is a simpler two-pointer approach), this version precomputes where every character appears in `t`, then uses binary search to jump straight to the right position.
+
+---
+
+## 🛠️ Approach
+
+1. Build a map `mp` where each character maps to a sorted list of all indices where it appears in `t`.
+2. Keep a `prev` variable (starting at `-1`) tracking the last matched index in `t`.
+3. For each character `ch` in `s`:
+   - If `ch` doesn't exist in `mp` at all, `s` can't be a subsequence — return `false`.
+   - Otherwise, use `upper_bound` on `mp[ch]` to find the smallest index strictly greater than `prev`.
+   - If no such index exists (`it == indices.end()`), return `false`.
+   - Otherwise, update `prev` to that index and continue.
+4. If every character in `s` finds a valid match, return `true`.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n + m log n)` — building the index map takes `O(n)` (where `n = t.length()`), and each of the `m` characters in `s` does a binary search (`upper_bound`) over its index list, costing `O(log n)` each.
+- **Space complexity:** `O(n)` — the map stores every index of `t`, split across character buckets.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), using `map<char, vector<int>>` for indexing and `upper_bound()` from `<algorithm>` for binary search.
+
+```cpp
+class Solution {
+public:
+    bool isSubsequence(string s, string t) {
+        int n = t.length();
+        int m = s.length();
+
+        map<char, vector<int>> mp;
+
+        for (int i = 0; i < n; i++) {
+            mp[t[i]].push_back(i);
+        }
+
+        int prev = -1;
+        for (int i = 0; i < m; i++) {
+            char ch = s[i];
+            if (mp.find(ch) == mp.end())
+                return false;
+
+            vector<int>& indices = mp[ch];
+            auto it = upper_bound(begin(indices), end(indices), prev);
+
+            if (it == indices.end())
+                return false;
+
+            prev = *it;
+        }
+        return true;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+Two subtle syntax traps are worth remembering here: `mp[key, value]` is not how you insert into a map of vectors — you need `mp[key].push_back(value)`. And `if (it = x)` silently compiles as an assignment, not a comparison — always double-check for `==` in condition checks, since a stray single `=` won't throw a compile error, just wrong behavior.
+
+---
+✅ **Status:** Accepted — all test cases passed
