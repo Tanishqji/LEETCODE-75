@@ -1,0 +1,64 @@
+# 0️⃣ LeetCode 75 — Day 10: Move Zeroes
+
+**📌 Problem:** [283. Move Zeroes](https://leetcode.com/problems/move-zeroes/)
+**🏷️ Topics:** Array, Two Pointers
+**⚡ Difficulty:** Easy
+
+---
+
+## 🧠 Intuition
+
+All the non-zero elements need to stay in their original relative order, and simply get "pulled forward" to the front — with every zero effectively pushed to the back. Since we're allowed to modify the array in place, we can achieve this in two clean passes: first compact all the non-zero values to the front, then fill whatever's left with zeros.
+
+---
+
+## 🛠️ Approach
+
+1. Use an `index` pointer starting at `0` — this tracks where the next non-zero value should be placed.
+2. **Pass 1:** Loop through `nums`. Whenever `nums[i] != 0`, copy it to `nums[index]` and increment `index`. By the end of this pass, all non-zero elements are compacted at the front, in their original order, and `index` equals the count of non-zero elements.
+3. **Pass 2:** Loop from `index` to the end of the array, setting every remaining position to `0`.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n)` — two linear passes over the array.
+- **Space complexity:** `O(1)` — modifies `nums` in place, no extra array used.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), modifying the input `vector<int>& nums` directly (two-pass compaction technique).
+
+```cpp
+class Solution {
+public:
+    void moveZeroes(vector<int>& nums) {
+        int n = nums.size();
+        int index = 0;
+
+        // Pass 1: shift all non-zero elements to the front, in order
+        for (int i = 0; i < n; i++) {
+            if (nums[i] != 0) {
+                nums[index] = nums[i];
+                index++;
+            }
+        }
+
+        // Pass 2: fill the rest with zeros
+        for (int i = index; i < n; i++) {
+            nums[i] = 0;
+        }
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+When an in-place rearrangement needs to preserve relative order of some elements while discarding/repositioning others, a two-pass "compact then fill" pattern is often simpler to reason about than trying to swap everything in a single pass — at the same `O(n)` time and `O(1)` space cost.
+
+---
+✅ **Status:** Accepted — all test cases passed
