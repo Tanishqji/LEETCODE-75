@@ -1,0 +1,64 @@
+# 🌊 LeetCode 75 — Day 11: Container With Most Water
+
+**📌 Problem:** [11. Container With Most Water](https://leetcode.com/problems/container-with-most-water/)
+**🏷️ Topics:** Array, Two Pointers, Greedy
+**⚡ Difficulty:** Medium
+
+---
+
+## 🧠 Intuition
+
+The area between two lines is `width × min(height of the two lines)`. Starting with the widest possible container (the two outer edges) gives the maximum possible width right away. From there, moving the **shorter** of the two pointers inward is the only move that can possibly increase the area — moving the taller one inward can only shrink the width while the height stays capped by the shorter line anyway, so it can never help.
+
+---
+
+## 🛠️ Approach
+
+1. Set two pointers: `lp = 0` (left edge) and `rp = height.size() - 1` (right edge).
+2. While `lp < rp`:
+   - Compute the current width `w = rp - lp` and the limiting height `ht = min(height[lp], height[rp])`.
+   - Compute `currWater = w * ht` and update `maxWater` if it's larger.
+   - Move whichever pointer points to the **shorter** line inward (`lp++` if `height[lp] < height[rp]`, else `rp--`).
+3. Return `maxWater` once the pointers meet.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n)` — each pointer moves inward at most `n` times total, so the array is traversed once.
+- **Space complexity:** `O(1)` — only a handful of integer variables are used.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), using a converging two-pointer technique with `min()`/`max()` from the standard library.
+
+```cpp
+class Solution {
+public:
+    int maxArea(vector<int>& height) {
+        int maxWater = 0;
+        int lp = 0, rp = height.size() - 1;
+
+        while (lp < rp) {
+            int w = rp - lp;
+            int ht = min(height[lp], height[rp]);
+            int currWater = w * ht;
+
+            maxWater = max(maxWater, currWater);
+            height[lp] < height[rp] ? lp++ : rp--;
+        }
+        return maxWater;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+Watch out for `size() - 1` when initializing a right-hand pointer to the last valid index — using `size()` directly reads one past the end of the array, which is undefined behavior in C++ and can silently pull garbage values into your calculations instead of throwing a clean error.
+
+---
+✅ **Status:** Accepted — all test cases passed
