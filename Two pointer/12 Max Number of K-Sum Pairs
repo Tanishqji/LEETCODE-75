@@ -1,0 +1,70 @@
+# ➕ LeetCode 75 — Day 12: Max Number of K-Sum Pairs
+
+**📌 Problem:** [1679. Max Number of K-Sum Pairs](https://leetcode.com/problems/max-number-of-k-sum-pairs/)
+**🏷️ Topics:** Array, Two Pointers, Sorting
+**⚡ Difficulty:** Medium
+
+---
+
+## 🧠 Intuition
+
+Once the array is sorted, finding pairs that sum to `k` becomes a classic two-pointer problem: the smallest and largest remaining elements are natural candidates to check against each other. If their sum is too small, the only way to increase it is to move the left pointer up (to a bigger value). If it's too big, the only way to decrease it is to move the right pointer down (to a smaller value). If it matches exactly, that's one valid pair — count it and move both pointers inward.
+
+---
+
+## 🛠️ Approach
+
+1. Sort `nums` in ascending order.
+2. Set two pointers: `li = 0` (left) and `ri = nums.size() - 1` (right).
+3. While `li < ri`:
+   - If `nums[li] + nums[ri] < k`, the sum is too small — move `li++` to try a bigger left value.
+   - Else if `nums[li] + nums[ri] > k`, the sum is too big — move `ri--` to try a smaller right value.
+   - Else (sum equals `k`), it's a valid pair — increment `ans`, then move both `li++` and `ri--` since both elements are now used.
+4. Return `ans`, the total count of valid pairs.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n log n)` — dominated by the initial sort; the two-pointer scan itself is `O(n)`.
+- **Space complexity:** `O(1)` extra space (aside from whatever auxiliary space the sort implementation uses internally) — no additional data structures beyond a few pointers.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), using `sort()` from `<algorithm>` and a converging two-pointer scan.
+
+```cpp
+class Solution {
+public:
+    int maxOperations(vector<int>& nums, int k) {
+        int ans = 0;
+        sort(nums.begin(), nums.end());
+        int li = 0;
+        int ri = nums.size() - 1;
+
+        while (li < ri) {
+            if (nums[li] + nums[ri] < k) {
+                li++;
+            } else if (nums[li] + nums[ri] > k) {
+                ri--;
+            } else {
+                li++;
+                ri--;
+                ans++;
+            }
+        }
+        return ans;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+Sorting first is what makes the two-pointer trick work here — once the array is ordered, the sum of the two extreme elements moves predictably as pointers shift, which is what lets the greedy left/right pointer movement converge correctly. Also worth remembering: C++ vectors use `.size()`, not Java's `.length` — a small syntax slip that's an easy trap when switching between languages.
+
+---
+✅ **Status:** Accepted — all test cases passed
