@@ -1,0 +1,66 @@
+# 🗑️ LeetCode 75 — Day 16: Longest Subarray of 1's After Deleting One Element
+
+**📌 Problem:** [1493. Longest Subarray of 1's After Deleting One Element](https://leetcode.com/problems/longest-subarray-of-1s-after-deleting-one-element/)
+**🏷️ Topics:** Array, Sliding Window
+**⚡ Difficulty:** Medium
+
+---
+
+## 🧠 Intuition
+
+Deleting one element is only ever worth doing if that element is a `0` — deleting a `1` would just shrink the subarray for no benefit. So the problem really becomes: find the longest window that contains **at most one zero**, and the answer is that window's length *minus* the zero itself (since it gets deleted). Instead of tracking a `zeros` counter and shrinking with a `while` loop, this solution uses a clever shortcut: remember the index of the **last zero seen**, and whenever a new zero shows up, jump the window's start to right after the *previous* zero.
+
+---
+
+## 🛠️ Approach
+
+1. Use `i` (window start), `j` (window end), and `last_zero_idx` (initialized to `-1`) to remember where the most recent zero was.
+2. Loop `j` from `0` to the end of `nums`:
+   - If `nums[j] == 0`, this is a new zero. Move the window's start to `i = last_zero_idx + 1` — everything before this point (up to and including the *previous* zero) is dropped, since keeping more than one zero in the window isn't allowed. Then update `last_zero_idx = j`.
+   - Update `result = max(result, j - i)`. Note it's `j - i`, not `j - i + 1` — this deliberately excludes one element (the current zero, if present) to account for the single deletion.
+3. Return `result` after scanning the full array.
+
+**Why `j - i` and not `j - i + 1`:** The window `[i, j]` may contain exactly one zero (at position `j` or somewhere earlier, tracked via `last_zero_idx`). Since that one zero is the element we're "deleting," the actual subarray of 1's we get to keep is one shorter than the raw window size — which `j - i` captures directly.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n)` — a single pass through the array; `j` moves forward once, and `i` only ever jumps forward, never backward.
+- **Space complexity:** `O(1)` — only a few integer variables are used.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), using a sliding window that tracks the last zero's index instead of a running zero count.
+
+```cpp
+class Solution {
+public:
+    int longestSubarray(vector<int>& nums) {
+        int i = 0, j = 0;
+        int last_zero_idx = -1;
+        int result = 0;
+
+        while (j < nums.size()) {
+            if (nums[j] == 0) {
+                i = last_zero_idx + 1;
+                last_zero_idx = j;
+            }
+            result = max(result, j - i);
+            j++;
+        }
+        return result;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+Some sliding-window problems don't need an explicit `while` loop to shrink the window — if the "at most k invalid elements" rule has `k = 1`, tracking just the *position* of the last invalid element is often enough to jump the window's start directly to the right spot, skipping the shrink loop entirely.
+
+---
+✅ **Status:** Accepted — all test cases passed
