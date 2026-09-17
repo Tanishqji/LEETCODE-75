@@ -1,0 +1,85 @@
+# 🔤 LeetCode 75 — Day 14: Maximum Number of Vowels in a Substring of Given Length
+
+**📌 Problem:** [1456. Maximum Number of Vowels in a Substring of Given Length](https://leetcode.com/problems/maximum-number-of-vowels-in-a-substring-of-given-length/)
+**🏷️ Topics:** String, Sliding Window
+**⚡ Difficulty:** Medium
+
+---
+
+## 🧠 Intuition
+
+Every substring of length `k` overlaps heavily with the one right before it — only one character leaves on the left and one enters on the right as the window shifts. So instead of recounting vowels for every substring from scratch, a running `count` can be maintained: add the new character entering the window, and if a vowel just left, subtract it.
+
+---
+
+## 🛠️ Approach
+
+1. Use two pointers, `i` (window start) and `j` (window end), both starting at `0`. Track `count` (vowels in the current window) and `maxV` (best count seen so far).
+2. Loop while `j < n`:
+   - If `s[j]` is a vowel, increment `count` — this simulates the new character entering the window.
+   - Once the window reaches exactly size `k` (`j - i + 1 == k`):
+     - Update `maxV = max(maxV, count)`.
+     - If `s[i]` (the character about to leave the window) is a vowel, decrement `count`.
+     - Move `i` forward by one, shrinking the window from the left before it grows again.
+   - Move `j` forward by one to extend the window.
+3. Return `maxV` once the whole string has been scanned.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n)` — each character is visited a constant number of times as `i` and `j` each move forward through the string once.
+- **Space complexity:** `O(1)` — only a few integer variables are used, no extra data structures.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), using a fixed-size sliding window and a lambda function (`isVowel`) for readability.
+
+```cpp
+class Solution {
+public:
+    int maxVowels(string s, int k) {
+        int n = s.length();
+        int i = 0, j = 0;      // i = start of window, j = end of window
+        int maxV = 0;          // stores the best (maximum) vowel count found so far
+        int count = 0;         // vowel count in the current window
+
+        // Simple lambda to check if a character is a vowel
+        auto isVowel = [&](char ch) {
+            return ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u';
+        };
+
+        while (j < n) {
+            // Step 1: try to add the new character (at index j) into the window
+            if (isVowel(s[j]))
+                count++;
+
+            // Step 2: once the window reaches exactly size k, check and shrink it
+            if (j - i + 1 == k) {
+                maxV = max(maxV, count);
+
+                // before sliding the window forward, remove the character
+                // that is about to leave the window (at index i)
+                if (isVowel(s[i]))
+                    count--;
+
+                i++;  // move the window's left edge forward by one
+            }
+
+            j++;  // move the window's right edge forward by one
+        }
+        return maxV;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+Never name a variable the same as a function you're also calling in the same line (`max = max(...)`) — the compiler can't tell whether `max` on the left refers to a variable or is trying to reference the function itself, leading to confusing overload-resolution errors. Keeping the accumulator (`maxV`) and the library function (`max()`) clearly distinct avoids this entirely.
+
+---
+✅ **Status:** Accepted — all test cases passed
