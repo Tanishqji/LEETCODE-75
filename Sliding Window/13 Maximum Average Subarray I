@@ -1,0 +1,72 @@
+# 📊 LeetCode 75 — Day 13: Maximum Average Subarray I
+
+**📌 Problem:** [643. Maximum Average Subarray I](https://leetcode.com/problems/maximum-average-subarray-i/)
+**🏷️ Topics:** Array, Sliding Window
+**⚡ Difficulty:** Easy
+
+---
+
+## 🧠 Intuition
+
+Recomputing the sum of every possible window of size `n` from scratch would be wasteful — most of the elements between two consecutive windows overlap. Instead, a **sliding window** lets us update the sum incrementally: drop the element leaving the window on the left, add the element entering on the right, and the sum updates in constant time per step.
+
+---
+
+## 🛠️ Approach
+
+1. Compute the sum of the first window (indices `0` to `n-1`) and store it as both `sum` and the initial `maxSum`.
+2. Set `startIndex = 0` (left edge of the window) and `endIndex = n` (the next element waiting to enter the window).
+3. Slide the window across the rest of the array:
+   - Subtract `nums[startIndex]` (the element leaving) from `sum`, then move `startIndex` forward.
+   - Add `nums[endIndex]` (the element entering) to `sum`, then move `endIndex` forward.
+   - Update `maxSum = max(maxSum, sum)`.
+4. Once the window can't slide any further, return `(double)maxSum / n` — the maximum sum divided by the window size gives the maximum average.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(len(nums))` — computing the first window's sum takes `O(n)`, and sliding across the rest of the array is `O(len(nums) - n)`, so the total work is linear in the array's length.
+- **Space complexity:** `O(1)` — only a handful of integer variables are used, no extra arrays.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), using a fixed-size sliding window with running sum updates.
+
+```cpp
+class Solution {
+public:
+    double findMaxAverage(vector<int>& nums, int n) {
+        int sum = 0;
+        for (int i = 0; i < n; i++)
+            sum += nums[i];
+
+        int maxSum = sum;
+
+        int startIndex = 0;
+        int endIndex = n;
+
+        while (endIndex < nums.size()) {
+            sum -= nums[startIndex];
+            startIndex++;
+
+            sum += nums[endIndex];
+            endIndex++;
+
+            maxSum = max(maxSum, sum);
+        }
+        return (double)maxSum / n;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+For fixed-size window problems, avoid recomputing the sum from scratch at every position — maintain a running sum and just add/remove the two elements at the window's edges as it slides. This is the core pattern behind the entire Sliding Window category. Also worth remembering while switching from Java: C++ uses `.size()` instead of `.length`, and `max()`/`min()` are free functions, not static methods on a `Math` class.
+
+---
+✅ **Status:** Accepted — all test cases passed
