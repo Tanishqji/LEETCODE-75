@@ -1,0 +1,75 @@
+# 1️⃣ LeetCode 75 — Day 15: Max Consecutive Ones III
+
+**📌 Problem:** [1004. Max Consecutive Ones III](https://leetcode.com/problems/max-consecutive-ones-iii/)
+**🏷️ Topics:** Array, Sliding Window
+**⚡ Difficulty:** Medium
+
+---
+
+## 🧠 Intuition
+
+We're allowed to flip up to `k` zeros to ones, so the goal becomes: find the longest window that contains **at most `k` zeros** — everything else in that window is already `1`, and the zeros inside it get "flipped" for free. This is a variable-size sliding window: grow it freely, but the moment it breaks the rule (too many zeros), shrink it from the left until it's valid again.
+
+---
+
+## 🛠️ Approach
+
+1. Use `left` as the window's start and loop `right` from `0` to the end of `nums`, expanding the window one step at a time.
+2. If `nums[right] == 0`, increment `zeros` — this zero just entered the window.
+3. While `zeros > k` (the window has become invalid — too many zeros to flip):
+   - If `nums[left] == 0`, decrement `zeros` (that zero is leaving the window).
+   - Move `left` forward, shrinking the window from the left.
+4. Once the `while` loop exits, the window `[left, right]` is guaranteed valid (at most `k` zeros). Update `maxLen = max(maxLen, right - left + 1)`.
+5. Return `maxLen` after scanning the full array.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n)` — `right` moves forward through the array once, and `left` never moves backward, so the total number of pointer movements is bounded by `2n`.
+- **Space complexity:** `O(1)` — only a few integer counters are used.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), using a variable-size sliding window with a `while` loop to shrink the window when invalid.
+
+```cpp
+class Solution {
+public:
+    int longestOnes(vector<int>& nums, int k) {
+        int left = 0, zeros = 0, maxLen = 0;
+
+        // right pointer expands the window one step at a time
+        for (int right = 0; right < nums.size(); right++) {
+            if (nums[right] == 0) {
+                zeros++;  // count this zero as it enters the window
+            }
+
+            // if the window now has more zeros than allowed,
+            // shrink it from the left until it's valid again
+            while (zeros > k) {
+                if (nums[left] == 0) {
+                    zeros--;  // this zero is leaving the window
+                }
+                left++;
+            }
+
+            // window [left, right] is now guaranteed valid (zeros <= k)
+            maxLen = max(maxLen, right - left + 1);
+        }
+
+        return maxLen;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+When a window's validity can *break* as it grows (too many zeros here), don't try to shrink it conditionally with an `if` — use a `while` loop instead, since sometimes more than one step of shrinking is needed to restore validity. Also: always double-check the direction of your shrink condition — "too many" (`>`) and "too few" (`<`) are easy to swap by accident, and swapping them silently produces wrong answers instead of a compile error.
+
+---
+✅ **Status:** Accepted — all test cases passed
