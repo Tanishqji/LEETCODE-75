@@ -1,0 +1,59 @@
+# ⛰️ LeetCode 75 — Day 17: Find the Highest Altitude
+
+**📌 Problem:** [1732. Find the Highest Altitude](https://leetcode.com/problems/find-the-highest-altitude/)
+**🏷️ Topics:** Array, Prefix Sum
+**⚡ Difficulty:** Easy
+
+---
+
+## 🧠 Intuition
+
+The altitude at any point is just the starting altitude (`0`) plus the running total of every gain up to that point — that's exactly what a prefix sum represents. So instead of computing each point's altitude separately, we can track a single running sum as we go and just keep note of the highest value it ever reaches.
+
+---
+
+## 🛠️ Approach
+
+1. Start `alt = 0` (current altitude) and `maxAlt = 0` (highest altitude seen so far — starts at `0` since that's the biker's starting point).
+2. Loop through every value `val` in `gain`:
+   - Add `val` to `alt` — this updates the current altitude after that point.
+   - Update `maxAlt = max(maxAlt, alt)`.
+3. Return `maxAlt` once the whole array has been processed.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n)` — a single pass through `gain`.
+- **Space complexity:** `O(1)` — only two integer variables are used, no extra array.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), using a running prefix sum with a range-based `for` loop.
+
+```cpp
+class Solution {
+public:
+    int largestAltitude(vector<int>& gain) {
+        int alt = 0;
+        int maxAlt = 0;
+
+        for (int val : gain) {
+            alt += val;
+            maxAlt = max(maxAlt, alt);
+        }
+        return maxAlt;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+Never name a variable the same as a standard library function you're calling in the same scope (`max`, `min`, `sort`, etc.) — it silently shadows the function entirely, turning what looks like a small naming choice into a confusing compile error. This is also a clean intro to prefix sums: any "running total up to this point" problem is just one variable, updated once per element.
+
+---
+✅ **Status:** Accepted — all test cases passed
