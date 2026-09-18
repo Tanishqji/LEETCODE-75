@@ -1,0 +1,75 @@
+# ⚖️ LeetCode 75 — Day 18: Find Pivot Index
+
+**📌 Problem:** [724. Find Pivot Index](https://leetcode.com/problems/find-pivot-index/)
+**🏷️ Topics:** Array, Prefix Sum
+**⚡ Difficulty:** Easy
+
+---
+
+## 🧠 Intuition
+
+A pivot index is a spot where "everything to the left" balances "everything to the right." Rather than recomputing the left and right sums from scratch for every index (which would be slow), we can compute the total sum once, then track a running left sum as we scan through — the right sum for any index is just whatever's left over: `total - leftSum - currentElement`.
+
+---
+
+## 🛠️ Approach
+
+1. Compute `sum`, the total of all elements in `nums`, in one pass.
+2. Initialize `cs = 0` — this tracks the cumulative sum of everything strictly to the left of the current index.
+3. Loop through `nums` a second time:
+   - `ls = cs` — the left sum at this index.
+   - `rs = sum - cs - nums[i]` — the right sum, found by subtracting the left sum and the current element from the total.
+   - If `ls == rs`, this index is the pivot — return it immediately.
+   - Otherwise, add `nums[i]` into `cs` so it's included in the left sum for the next index.
+4. If no index satisfies the condition, return `-1`.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n)` — two linear passes over the array (one to get the total, one to check each index).
+- **Space complexity:** `O(1)` — only a few integer variables are used, no extra arrays.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), using a total-sum + running-left-sum prefix sum technique.
+
+```cpp
+class Solution {
+public:
+    int pivotIndex(vector<int>& nums) {
+        int n = nums.size();
+        int sum = 0;   // total sum of all elements in the array
+        int cs = 0;    // cs = cumulative sum of everything to the LEFT of the current index
+
+        // first pass: compute the total sum of the whole array
+        for (int i = 0; i < n; i++) {
+            sum += nums[i];
+        }
+
+        // second pass: check each index as a potential pivot
+        for (int i = 0; i < n; i++) {
+            int ls = cs;                   // sum of everything left of i
+            int rs = sum - cs - nums[i];   // sum of everything right of i
+                                            // (total sum minus left sum minus the element itself)
+
+            if (ls == rs)
+                return i;   // found a pivot — left and right sums match
+
+            cs += nums[i];  // include this element in the running left sum for the next index
+        }
+        return -1;  // no pivot index exists
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+You don't need to store a full prefix sum array to solve every prefix-sum problem — sometimes a single running variable (`cs` here) is enough, since the "right sum" can always be derived from `total - left - current` instead of being tracked separately. Also: keep parameter and variable names consistent throughout the function — mixing `nums`, `num`, and `a` for the same thing is a common source of "undeclared identifier" errors.
+
+---
+✅ **Status:** Accepted — all test cases passed
