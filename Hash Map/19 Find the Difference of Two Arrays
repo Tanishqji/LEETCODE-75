@@ -1,0 +1,68 @@
+# 🔀 LeetCode 75 — Day 19: Find the Difference of Two Arrays
+
+**📌 Problem:** [2215. Find the Difference of Two Arrays](https://leetcode.com/problems/find-the-difference-of-two-arrays/)
+**🏷️ Topics:** Array, Hash Table
+**⚡ Difficulty:** Easy
+
+---
+
+## 🧠 Intuition
+
+To find elements that are unique to one array but not the other, checking membership needs to be fast — and that's exactly what a hash set gives us: `O(1)` lookups instead of scanning the whole other array every time. Converting both arrays into sets also conveniently removes duplicates for free, since the answer only needs each distinct value once.
+
+---
+
+## 🛠️ Approach
+
+1. Convert `nums1` and `nums2` into unordered sets, `s1` and `s2` — this removes duplicates and enables constant-time lookups.
+2. Loop through every value in `s1`; if it's **not** found in `s2` (`s2.count(num) == 0`), it's unique to `nums1` — add it to `diff1`.
+3. Loop through every value in `s2`; if it's **not** found in `s1`, it's unique to `nums2` — add it to `diff2`.
+4. Return `{diff1, diff2}` as the final result.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n + m)` — building both sets takes `O(n + m)`, and each lookup during the two scans is `O(1)` on average.
+- **Space complexity:** `O(n + m)` — for the two hash sets and the two result vectors.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), using `unordered_set<int>` for fast membership checks.
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> findDifference(vector<int>& nums1, vector<int>& nums2) {
+
+        unordered_set<int> s1(nums1.begin(), nums1.end());
+        unordered_set<int> s2(nums2.begin(), nums2.end());
+
+        vector<int> diff1, diff2;
+
+        for (int num : s1) {
+            if (s2.count(num) == 0) {
+                diff1.push_back(num);
+            }
+        }
+
+        for (int num : s2) {
+            if (s1.count(num) == 0) {
+                diff2.push_back(num);
+            }
+        }
+        return {diff1, diff2};
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+Whenever a problem asks "what's in A but not in B" (or vice versa), converting both inputs to hash sets first is almost always the right move — it turns what would be an `O(n*m)` nested-loop check into a clean `O(n + m)` pass, and deduplication comes along for free.
+
+---
+✅ **Status:** Accepted — all test cases passed
