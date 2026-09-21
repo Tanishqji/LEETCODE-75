@@ -1,0 +1,77 @@
+# 🔓 LeetCode 75 — Day 25: Decode String
+
+**📌 Problem:** [394. Decode String](https://leetcode.com/problems/decode-string/)
+**🏷️ Topics:** String, Stack
+**⚡ Difficulty:** Medium
+
+---
+
+## 🧠 Intuition
+
+The tricky part is that groups can nest inside other groups (like `3[a2[c]]`), so we can't just process left to right in one flat pass — when a new `[` opens, whatever we've built so far needs to be "paused" and picked back up after the matching `]` closes. That "pause and resume" behavior is exactly what a stack is for: push the current progress before diving into a nested group, then pop it back out once that group is fully decoded.
+
+---
+
+## 🛠️ Approach
+
+1. Use two stacks — `counts` (numbers) and `strs` (strings) — plus two working variables: `curr` (the string being built) and `num` (the number being built).
+2. Loop through every character of `s`:
+   - **Digit:** build up multi-digit numbers with `num = num * 10 + (c - '0')`.
+   - **`[`:** a new group is starting. Push the current `num` and `curr` onto their stacks (saving progress), then reset both to start fresh for the group inside the brackets.
+   - **`]`:** a group just closed. Pop the repeat count `k` and the string that was being built *before* this group (`prev`). Repeat `curr` (the just-finished group's content) `k` times, then glue it onto `prev` to continue building where we left off.
+   - **Letter:** just append it directly to `curr`.
+3. Return `curr` once the whole string has been processed — it holds the fully decoded result.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n * k)` — where `k` is the maximum repeat count in the string, since building a repeated string of length `k` takes proportional time.
+- **Space complexity:** `O(n)` — for the two stacks and the strings being built, which grow with the nesting depth and content size.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), using two parallel stacks (`stack<int>` and `stack<string>`) instead of recursion.
+
+```cpp
+class Solution {
+public:
+    string decodeString(string s) {
+        stack<int> counts;
+        stack<string> strs;
+        string curr = "";
+        int num = 0;
+
+        for (char c : s) {
+            if (isdigit(c)) {
+                num = num * 10 + (c - '0');
+            } else if (c == '[') {
+                counts.push(num);
+                strs.push(curr);
+                num = 0;
+                curr = "";
+            } else if (c == ']') {
+                int k = counts.top(); counts.pop();
+                string prev = strs.top(); strs.pop();
+                string repeated = "";
+                for (int i = 0; i < k; i++) repeated += curr;
+                curr = prev + repeated;
+            } else {
+                curr += c;
+            }
+        }
+        return curr;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+Whenever a problem involves nested structures (brackets, parentheses, nested groups), think "stack" before reaching for recursion — pushing state before descending into a nested section and popping it back out afterward is a clean, iterative way to handle arbitrary nesting depth without extra function call overhead.
+
+---
+✅ **Status:** Accepted — all test cases passed
