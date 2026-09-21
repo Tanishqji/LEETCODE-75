@@ -1,0 +1,66 @@
+# ⭐ LeetCode 75 — Day 23: Removing Stars From a String
+
+**📌 Problem:** [2390. Removing Stars From a String](https://leetcode.com/problems/removing-stars-from-a-string/)
+**🏷️ Topics:** String, Stack, Simulation
+**⚡ Difficulty:** Medium
+
+---
+
+## 🧠 Intuition
+
+Every `*` cancels out the character that came right before it — and that "most recent, not-yet-cancelled" character is exactly what a **stack** is built to track. Push every regular character on; whenever a `*` shows up, pop the top of the stack instead of pushing anything.
+
+---
+
+## 🛠️ Approach
+
+1. Loop through every character of `s`.
+2. If the character is `'*'`, pop the top of the stack — this removes the closest character to its left that hasn't been removed yet.
+3. Otherwise, push the character onto the stack.
+4. Once the whole string has been processed, the stack holds the remaining characters — but in reverse order (since a stack pops from the top). Pop everything into a `result` string, then reverse it to get the correct final order.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n)` — each character is pushed and/or popped at most once, and the final reverse is also `O(n)`.
+- **Space complexity:** `O(n)` — for the stack and the result string in the worst case (no stars at all).
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), using `stack<char>` and `reverse()` from `<algorithm>`.
+
+```cpp
+class Solution {
+public:
+    string removeStars(string s) {
+        stack<char> st;
+
+        for (int i = 0; i < s.length(); i++) {
+            if (s[i] == '*')
+                st.pop();
+            else
+                st.push(s[i]);
+        }
+
+        string result = "";
+        while (!st.empty()) {
+            result.push_back(st.top());
+            st.pop();
+        }
+        reverse(begin(result), end(result));
+        return result;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+Single characters always need single quotes (`'*'`), never double quotes (`"*"`) — double quotes create a string literal (a pointer), which can't be compared directly to a `char`. Also worth remembering: a stack naturally reverses order as you pop it, so if the original order matters, don't forget the final `reverse()` step.
+
+---
+✅ **Status:** Accepted — all test cases passed
