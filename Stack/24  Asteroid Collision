@@ -1,0 +1,76 @@
+# ☄️ LeetCode 75 — Day 24: Asteroid Collision
+
+**📌 Problem:** [735. Asteroid Collision](https://leetcode.com/problems/asteroid-collision/)
+**🏷️ Topics:** Array, Stack, Simulation
+**⚡ Difficulty:** Medium
+
+---
+
+## 🧠 Intuition
+
+An asteroid moving right (`positive`) and one moving left (`negative`) can only collide if the right-moving one came *before* the left-moving one — which is exactly the relationship a stack captures: the top of the stack is always the most recent right-moving asteroid still "in play." Every new left-moving asteroid gets checked against that top, and collisions cascade backward through the stack as needed.
+
+---
+
+## 🛠️ Approach
+
+1. Use a stack `st` to represent asteroids that have survived so far.
+2. For each asteroid `a` in the input:
+   - While the stack isn't empty, `a` is moving left (`a < 0`), and the stack's top is moving right (`st.back() > 0`), a collision is happening. Compare sizes:
+     - If `a` is smaller in magnitude (`sum < 0`), the stack's top asteroid survives — pop the smaller (right-moving) one off, since `a` destroys it and keeps moving.
+     - If `a` is smaller (`sum > 0`), `a` itself is destroyed — set `a = 0` so it won't get pushed.
+     - If they're equal in size (`sum == 0`), both are destroyed — pop the stack's top and set `a = 0`.
+   - After all collisions for this asteroid are resolved, if `a` still exists (`a != 0`), push it onto the stack.
+3. Return the stack (as a vector) — it now represents all surviving asteroids in order.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n)` — although there's a `while` loop inside the `for` loop, each asteroid is pushed and popped from the stack at most once overall, so the total work across all iterations is linear (amortized).
+- **Space complexity:** `O(n)` — for the stack, which in the worst case (no collisions) holds every asteroid.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), using `vector<int>` as a stack (`push_back`/`pop_back`/`back`) to simulate the collision process.
+
+```cpp
+class Solution {
+public:
+    vector<int> asteroidCollision(vector<int>& asteroids) {
+        vector<int> st;
+
+        for (int i = 0; i < asteroids.size(); i++) {
+            int a = asteroids[i];  // current asteroid
+
+            while (!st.empty() && a < 0 && st.back() > 0) {
+                // collision happens
+                int sum = a + st.back();
+                if (sum < 0) {
+                    st.pop_back();
+                } else if (sum > 0) {
+                    a = 0;
+                } else {
+                    st.pop_back();
+                    a = 0;
+                }
+            }
+            if (a != 0) {
+                st.push_back(a);
+            }
+        }
+        return st;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+Never assume a variable exists just because it's used consistently throughout a function — always trace back to where it's actually assigned. Here, `a` was used in every branch of the logic but never initialized from the current loop element, which is an easy thing to miss when the rest of the collision logic looks otherwise complete.
+
+---
+✅ **Status:** Accepted — all test cases passed
