@@ -1,0 +1,69 @@
+# 🔢 LeetCode 75 — Day 20: Unique Number of Occurrences
+
+**📌 Problem:** [1207. Unique Number of Occurrences](https://leetcode.com/problems/unique-number-of-occurrences/)
+**🏷️ Topics:** Array, Hash Table
+**⚡ Difficulty:** Easy
+
+---
+
+## 🧠 Intuition
+
+This is really a two-step counting problem: first count how many times each value appears, then check whether any of those counts repeat. Both steps map cleanly onto hash-based structures — a hash map for the first count, and a hash set to detect duplicate counts.
+
+---
+
+## 🛠️ Approach
+
+1. Build `freqMap`, an `unordered_map<int, int>`, by looping through `arr` and incrementing `freqMap[value]` for every element — this gives the occurrence count of each distinct value.
+2. Create an empty `uniqueFrequencies` hash set.
+3. Loop through every entry in `freqMap`:
+   - If its frequency (`pair.second`) is already in `uniqueFrequencies`, two different values share the same occurrence count — return `false` immediately.
+   - Otherwise, insert that frequency into `uniqueFrequencies`.
+4. If the loop finishes without finding a duplicate, every value's occurrence count is unique — return `true`.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n)` — one pass to build the frequency map, and one pass over the map's entries (at most `n` distinct values) to check for duplicate frequencies.
+- **Space complexity:** `O(n)` — for the frequency map and the frequency-tracking set.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), using `unordered_map<int, int>` for counting and `unordered_set<int>` for duplicate-frequency detection.
+
+```cpp
+class Solution {
+public:
+    bool uniqueOccurrences(vector<int>& arr) {
+        unordered_map<int, int> freqMap;
+
+        for (int value : arr) {
+            freqMap[value]++;
+        }
+
+        unordered_set<int> uniqueFrequencies;
+
+        for (auto &pair : freqMap) {
+            int freq = pair.second;
+
+            if (uniqueFrequencies.count(freq)) {
+                return false;
+            }
+            uniqueFrequencies.insert(freq);
+        }
+        return true;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+A stray semicolon in the middle of a statement can produce confusing, seemingly unrelated errors — here it made the compiler think a lambda was starting. When an error mentions something like "lambda" or "capture list" out of nowhere, it's worth checking the line just above for a misplaced `;` or bracket first.
+
+---
+✅ **Status:** Accepted — all test cases passed
