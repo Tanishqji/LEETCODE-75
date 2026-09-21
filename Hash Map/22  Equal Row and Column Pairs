@@ -1,0 +1,68 @@
+# 🔲 LeetCode 75 — Day 22: Equal Row and Column Pairs
+
+**📌 Problem:** [2352. Equal Row and Column Pairs](https://leetcode.com/problems/equal-row-and-column-pairs/)
+**🏷️ Topics:** Array, Hash Table, Matrix, Simulation
+**⚡ Difficulty:** Medium
+
+---
+
+## 🧠 Intuition
+
+Checking every row against every column directly would mean comparing `n` rows to `n` columns, one element at a time — `O(n³)` in total. Instead, since `vector<int>` can be used as a hash map key, we can count how many times each **row** appears as a whole, then for every **column**, just look up how many rows matched it exactly.
+
+---
+
+## 🛠️ Approach
+
+1. Build a map `mp` where the key is an entire row (`vector<int>`) and the value is how many times that exact row appears in the grid.
+2. Loop through every row index and increment `mp[grid[row]]`.
+3. For every column index `col`, build a temporary vector `temp` by collecting `grid[r][col]` for every row `r` — this reconstructs the column as a standalone vector.
+4. Look up `mp[temp]` — this tells us how many rows exactly match this column. Add that count to the running total.
+5. Return `count` after checking all columns.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n²)` — building the row map takes `O(n²)` (n rows, each of length n), and reconstructing + looking up each column also takes `O(n²)` total (n columns, each requiring an `O(n)` build plus an `O(n)` map lookup/hash on a vector key).
+- **Space complexity:** `O(n²)` — the map stores up to `n` full rows, each of length `n`.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), using `map<vector<int>, int>` to count occurrences of entire rows as keys.
+
+```cpp
+class Solution {
+public:
+    int equalPairs(vector<vector<int>>& grid) {
+        int n = grid.size();
+        int count = 0;
+
+        map<vector<int>, int> mp;
+
+        for (int row = 0; row < n; row++) {
+            mp[grid[row]]++;
+        }
+
+        for (int col = 0; col < n; col++) {
+            vector<int> temp;
+            for (int r = 0; r < n; r++) {
+                temp.push_back(grid[r][col]);
+            }
+            count += mp[temp];
+        }
+        return count;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+A `vector<int>` can be used directly as a key in `map` (since it supports lexicographic comparison), which makes "compare whole rows/sequences as a single unit" problems much cleaner than manually comparing element by element. Also worth remembering: loop variables are scoped to their own loop — reusing a name like `row` from an earlier loop in a different one won't compile, even if the intent is obvious.
+
+---
+✅ **Status:** Accepted — all test cases passed
