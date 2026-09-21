@@ -1,0 +1,83 @@
+# 🔤 LeetCode 75 — Day 21: Determine if Two Strings Are Close
+
+**📌 Problem:** [1657. Determine if Two Strings Are Close](https://leetcode.com/problems/determine-if-two-strings-are-close/)
+**🏷️ Topics:** Hash Table, String, Sorting
+**⚡ Difficulty:** Medium
+
+---
+
+## 🧠 Intuition
+
+Two operations are allowed: swapping any two characters within a string (which means the *positions* of letters don't matter at all — only which letters exist and how many times), and swapping the counts of two existing characters (e.g. if `'a'` appears 3 times and `'b'` appears 5 times, those counts can be swapped between them). This means two strings are "close" if:
+1. They contain exactly the same **set** of distinct characters, and
+2. Their **frequency counts**, once sorted, match up exactly (since counts themselves can be freely rearranged between existing characters).
+
+---
+
+## 🛠️ Approach
+
+1. If the two strings have different lengths, they can't possibly be close — return `false` immediately.
+2. Build two frequency arrays, `freq1` and `freq2` (size 26, one slot per lowercase letter), by counting each character's occurrences in `word1` and `word2` respectively.
+3. Check that both strings use the **same set of characters**: for every letter index `i`, either both `freq1[i]` and `freq2[i]` are nonzero, or both are zero. If one is zero and the other isn't, the character sets differ — return `false`.
+4. Sort both frequency arrays. If the sorted counts match exactly, the strings are close — return `freq1 == freq2`.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n + 26 log 26)` — building the frequency arrays takes `O(n)` (where `n` is the string length), and sorting two fixed-size 26-element arrays is effectively constant time.
+- **Space complexity:** `O(1)` — the frequency arrays are a fixed size of 26 regardless of input size.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), using fixed-size frequency arrays and `sort()` from `<algorithm>`.
+
+```cpp
+class Solution {
+public:
+    bool closeStrings(string word1, string word2) {
+        int m = word1.length();
+        int n = word2.length();
+
+        if (m != n)
+            return false;
+
+        vector<int> freq1(26);
+        vector<int> freq2(26);
+
+        for (int i = 0; i < m; i++) {
+            char ch1 = word1[i];
+            char ch2 = word2[i];
+
+            int idx1 = ch1 - 'a';
+            int idx2 = ch2 - 'a';
+
+            freq1[idx1]++;
+            freq2[idx2]++;
+        }
+
+        for (int i = 0; i < 26; i++) {
+            if (freq1[i] != 0 && freq2[i] != 0) continue;
+            if (freq1[i] == 0 && freq2[i] == 0) continue;
+
+            return false;
+        }
+
+        sort(begin(freq1), end(freq1));
+        sort(begin(freq2), end(freq2));
+
+        return freq1 == freq2;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+When two similarly-named variables exist for two different inputs (`ch1`/`ch2`, `freq1`/`freq2`), it's an easy trap to accidentally read from the same source twice — always double check that each variable actually pulls from its intended string/array, especially when the code compiles fine but produces wrong answers silently.
+
+---
+✅ **Status:** Accepted — all test cases passed
