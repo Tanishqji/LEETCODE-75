@@ -1,0 +1,82 @@
+# 🗳️ LeetCode 75 — Day 27: Dota2 Senate
+
+**📌 Problem:** [649. Dota2 Senate](https://leetcode.com/problems/dota2-senate/)
+**🏷️ Topics:** String, Queue, Greedy
+**⚡ Difficulty:** Medium
+
+---
+
+## 🧠 Intuition
+
+Each round, whichever senator comes first (has the smaller index) gets to ban the very next senator of the opposing party — and that banned senator is out of the game entirely, though they can still "rejoin" in a later round if their party still has members. Since rounds happen in order and banned members effectively move to the back of the line for the *next* round, two queues (one per party) tracking positions work perfectly — a banned senator can be re-inserted at `index + n` to represent them showing up again one full round later.
+
+---
+
+## 🛠️ Approach
+
+1. Push every `'R'` senator's index into queue `r`, and every `'D'` senator's index into queue `d`.
+2. While both queues have members left:
+   - Compare the front of each queue (`R_ind` vs `D_ind`) — whichever is smaller acts first in this round.
+   - Pop both fronts.
+   - If `R_ind < D_ind`, the Radiant senator bans this Dire senator. The Radiant senator survives and re-enters the queue at `R_ind + n` (representing their turn in the *next* round).
+   - If `D_ind < R_ind`, the same happens in reverse — the Dire senator survives and is pushed back at `D_ind + n`.
+3. Once one queue is empty, that party has been completely banned. Return `"Dire"` if `d` still has more members than `r`, otherwise `"Radiant"`.
+
+**Why `+ n` works:** Adding `n` to an index pushes it exactly one "round" ahead of every senator still in this round, while preserving relative order among senators from the same round — so the comparison `R_ind < D_ind` remains meaningful across rounds.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n)` — each senator is processed and re-queued a bounded number of times before eventually being banned or determined to be part of the winning party; the total work across all rounds is linear.
+- **Space complexity:** `O(n)` — for the two queues holding senator indices.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), using two `queue<int>`s to simulate turn order across rounds.
+
+```cpp
+// 649. Dota2 Senate
+class Solution {
+public:
+    string predictPartyVictory(string senate) {
+        int n = senate.size();
+        queue<int> r, d;
+
+        for (int i = 0; i < n; i++) {
+            if (senate[i] == 'R') r.push(i);
+            if (senate[i] == 'D') d.push(i);
+        }
+
+        while (d.size() > 0 && r.size() > 0) {
+            int R_ind = r.front();
+            int D_ind = d.front();
+
+            r.pop();
+            d.pop();
+
+            if (R_ind < D_ind) {
+                // disqualify D
+                r.push(R_ind + n); // push R in the end i.e. (ind + n)
+            }
+            if (D_ind < R_ind) {
+                // disqualify R
+                d.push(D_ind + n); // push D in the end i.e. (ind + n)
+            }
+        }
+
+        return d.size() > r.size() ? "Dire" : "Radiant";
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+Simulating "rounds" doesn't always need an explicit round counter or nested loop — encoding "which round" directly into the value being compared (here, `index + n` per round) lets a single flat `while` loop handle arbitrarily many rounds correctly.
+
+---
+✅ **Status:** Accepted — all test cases passed
