@@ -1,0 +1,70 @@
+# 📞 LeetCode 75 — Day 26: Number of Recent Calls
+
+**📌 Problem:** [933. Number of Recent Calls](https://leetcode.com/problems/number-of-recent-calls/)
+**🏷️ Topics:** Design, Queue, Data Stream
+**⚡ Difficulty:** Easy
+
+---
+
+## 🧠 Intuition
+
+Since every new `ping` call happens at a time `>=` all previous ones, the timestamps naturally arrive in sorted order. That means the "requests within the last 3000ms" are always a contiguous chunk at the *end* of the history — the oldest ones fall out of range first. A queue is a perfect fit: add new timestamps at the back, and remove expired ones from the front.
+
+---
+
+## 🛠️ Approach
+
+1. Maintain a queue `q` that stores every timestamp seen so far, in order.
+2. On each `ping(t)` call:
+   - Push the new timestamp `t` onto the back of the queue.
+   - Compute `low = t - 3000` — any timestamp older than this is now out of the valid window.
+   - While the front of the queue is older than `low`, pop it off — these are expired requests.
+3. Return `q.size()` — the number of timestamps still in the queue is exactly the number of requests within the last 3000ms (inclusive).
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(1)` amortized per `ping` call — although the `while` loop could pop several elements in one call, each timestamp is only ever pushed once and popped once across the entire lifetime of the object, so the total work stays linear overall.
+- **Space complexity:** `O(n)` — where `n` is the number of calls made so far that still fall within the 3000ms window.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP "design" submission format (a class with a constructor and methods, instantiated and called externally), using `queue<int>` for the sliding time window.
+
+```cpp
+class RecentCounter {
+public:
+    queue<int> q;
+    RecentCounter() {
+        
+    }
+    
+    int ping(int t) {
+        q.push(t);
+        int low = t - 3000;
+
+        while (!q.empty() && q.front() < low)
+            q.pop();
+
+        return q.size();
+    }
+};
+
+/**
+ * Your RecentCounter object will be instantiated and called as such:
+ * RecentCounter* obj = new RecentCounter();
+ * int param_1 = obj->ping(t);
+ */
+```
+
+---
+
+## 🔑 Key Takeaway
+
+When timestamps or events arrive in non-decreasing order, a queue is usually the right tool for "keep only the recent ones" problems — no need for a more complex structure since expired items are always sitting conveniently at the front, ready to be popped off.
+
+---
+✅ **Status:** Accepted — all test cases passed
