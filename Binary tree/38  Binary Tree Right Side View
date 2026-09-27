@@ -1,0 +1,78 @@
+# 👀 LeetCode 75 — Day 38: Binary Tree Right Side View
+
+**📌 Problem:** [199. Binary Tree Right Side View](https://leetcode.com/problems/binary-tree-right-side-view/)
+**🏷️ Topics:** Tree, Binary Tree, BFS
+**⚡ Difficulty:** Medium
+
+---
+
+## 🧠 Intuition
+
+Standing on the right side of the tree and looking at it, the only node visible per level is the **rightmost** one. Level-order traversal (BFS) naturally processes a tree one level at a time, so if we track the *last* node processed in each level's batch, that's exactly the rightmost node — no extra bookkeeping needed.
+
+---
+
+## 🛠️ Approach
+
+1. If `root` is null, there's nothing to view — return an empty vector.
+2. Use a queue for standard BFS, starting with `root` pushed in.
+3. For each level:
+   - Record `n = que.size()` — the number of nodes in the current level.
+   - Process exactly `n` nodes: pop each one, push its left and right children (if they exist) for the next level, and keep updating `node` to whichever was just popped.
+   - After the inner loop finishes processing all `n` nodes, `node` is left holding the **last** node processed in this level — which, because left children are always pushed before right children, is guaranteed to be the rightmost node of that level.
+   - Push `node->val` into `result`.
+4. Return `result` once every level has been processed.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n)` — every node is visited and enqueued/dequeued exactly once.
+- **Space complexity:** `O(n)` — the queue can hold up to the width of the widest level (up to `n/2` nodes in the worst case), plus `O(n)` for the result in the worst case (a completely skewed tree).
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), using level-order BFS with `queue<TreeNode*>`.
+
+```cpp
+class Solution {
+public:
+    vector<int> rightSideView(TreeNode* root) {
+        
+        if (root == NULL) return {};
+
+        vector<int> result;
+        queue<TreeNode*> que;
+        que.push(root);
+
+        while (!que.empty()) {
+            int n = que.size();
+            TreeNode* node = NULL;
+
+            while (n--) {
+                node = que.front();
+                que.pop();
+
+                if (node->left != NULL)
+                    que.push(node->left);
+
+                if (node->right != NULL)
+                    que.push(node->right);
+            }
+            result.push_back(node->val);
+        }
+        return result;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+Snapshotting `que.size()` before the inner loop starts is the key trick that makes level-by-level BFS work — it locks in exactly how many nodes belong to the *current* level before any of their children get added to the queue, cleanly separating one level's processing from the next.
+
+---
+✅ **Status:** Accepted — all test cases passed
