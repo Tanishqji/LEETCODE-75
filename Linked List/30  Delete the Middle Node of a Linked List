@@ -1,0 +1,71 @@
+# 🎯 LeetCode 75 — Day 30: Delete the Middle Node of a Linked List
+
+**📌 Problem:** [2095. Delete the Middle Node of a Linked List](https://leetcode.com/problems/delete-the-middle-node-of-a-linked-list/)
+**🏷️ Topics:** Linked List, Two Pointers
+**⚡ Difficulty:** Medium
+
+---
+
+## 🧠 Intuition
+
+Finding the middle of a linked list without knowing its length upfront is a classic job for the **slow and fast pointer** technique: move `fast` two steps for every one step `slow` takes, and by the time `fast` reaches the end, `slow` is sitting right at the middle. The only extra thing needed here is a `prev` pointer trailing one step behind `slow`, so that once the middle is found, it can be unlinked by connecting `prev` directly to `slow->next`.
+
+---
+
+## 🛠️ Approach
+
+1. Handle the trivial cases first: if the list is empty or has only one node, deleting the "middle" leaves nothing — return `nullptr`.
+2. Initialize `prev = nullptr`, `slow = head`, `fast = head`.
+3. While `fast` and `fast->next` are both non-null:
+   - Move `prev` to where `slow` currently is (trailing pointer).
+   - Move `slow` one step forward.
+   - Move `fast` two steps forward.
+4. Once the loop ends, `slow` is sitting on the middle node. Splice it out: `prev->next = slow->next`.
+5. Free the removed node with `delete slow`, and return the (unchanged) `head`.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n)` — a single pass through the list using the fast/slow pointer technique.
+- **Space complexity:** `O(1)` — only three pointers are used, no extra data structures.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), using the classic slow/fast pointer technique with a trailing `prev` pointer on `ListNode*`.
+
+```cpp
+class Solution {
+public:
+    ListNode* deleteMiddle(ListNode* head) {
+        if (head == nullptr || head->next == nullptr) {
+            return nullptr;
+        }
+
+        ListNode* prev = nullptr;
+        ListNode* slow = head;
+        ListNode* fast = head;
+
+        while (fast != nullptr && fast->next != nullptr) {
+            prev = slow;
+            slow = slow->next;
+            fast = fast->next->next;
+        }
+        prev->next = slow->next;
+        delete slow;
+
+        return head;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+The slow/fast pointer pattern from finding a linked list's middle pairs naturally with a trailing `prev` pointer whenever you also need to *modify* the list at that middle point — one pointer finds the target, the other holds onto what comes right before it, ready to relink. And as always in C++: it's `nullptr`, never `null`.
+
+---
+✅ **Status:** Accepted — all test cases passed
