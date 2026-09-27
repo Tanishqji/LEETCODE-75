@@ -1,0 +1,70 @@
+# ✅ LeetCode 75 — Day 35: Count Good Nodes in Binary Tree
+
+**📌 Problem:** [1448. Count Good Nodes in Binary Tree](https://leetcode.com/problems/count-good-nodes-in-binary-tree/)
+**🏷️ Topics:** Tree, Binary Tree, DFS
+**⚡ Difficulty:** Medium
+
+---
+
+## 🧠 Intuition
+
+A node is "good" if nothing on the path from the root down to it is bigger than it — in other words, it's at least as big as the biggest value seen so far on the way down. That "biggest value seen so far" is exactly the kind of thing that can be passed down through recursion as we go from parent to child.
+
+---
+
+## 🛠️ Approach
+
+1. Write a helper `countgood(root, maxValue)` where `maxValue` tracks the largest value seen on the path from the root down to (but not including) the current node.
+2. Base case: if `root` is null, return `0`.
+3. If the current node's value is `>= maxValue`, it's a good node — count it (`count = 1`), and update `maxValue` to this node's value before recursing further down (since this node is now the new "biggest so far" for its children).
+4. Recurse into the left and right subtrees, passing along the (possibly updated) `maxValue`, and add their good-node counts to `count`.
+5. Return `count`. The main `goodNodes` function kicks this off with `maxValue = INT_MIN`, since the root is always good by definition (nothing precedes it).
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n)` — every node is visited exactly once.
+- **Space complexity:** `O(h)` — recursion stack space, where `h` is the height of the tree.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method and a private recursive helper), passing the running maximum down through recursive calls.
+
+```cpp
+class Solution {
+public:
+    int goodNodes(TreeNode* root) {
+        return countgood(root, INT_MIN);
+    }
+
+private:
+    int countgood(TreeNode* root, int maxValue) {
+        if (root == nullptr)
+            return 0;
+
+        int count = 0;
+
+        if (root->val >= maxValue) {
+            count = 1;
+            maxValue = root->val;
+        }
+
+        count += countgood(root->left, maxValue);
+        count += countgood(root->right, maxValue);
+
+        return count;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+When a problem depends on "everything seen so far on the path from the root," pass that running state as a parameter through the recursion — it avoids needing extra global variables or a separate path-tracking structure, since each recursive call naturally only sees the state relevant to its own branch.
+
+---
+✅ **Status:** Accepted — all test cases passed
