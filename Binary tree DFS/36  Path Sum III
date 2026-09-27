@@ -1,0 +1,81 @@
+# 🛤️ LeetCode 75 — Day 36: Path Sum III
+
+**📌 Problem:** [437. Path Sum III](https://leetcode.com/problems/path-sum-iii/)
+**🏷️ Topics:** Tree, Binary Tree, DFS, Hash Table, Prefix Sum
+**⚡ Difficulty:** Medium
+
+---
+
+## 🧠 Intuition
+
+Paths here don't need to start at the root — they just need to go strictly downward. This is basically the "subarray sum equals k" problem, but on a tree instead of an array: keep a running sum from the root down to the current node, and for every node, check whether `(runningSum - target)` has been seen before on this exact path. If it has, everything between that earlier point and now sums to exactly `target` — a valid path.
+
+---
+
+## 🛠️ Approach
+
+1. Maintain a hash map `mp` that stores how many times each prefix sum has occurred *along the current root-to-node path*. Initialize `mp[0] = 1` — this represents the "empty path" case, needed to correctly count paths that start right from the root.
+2. DFS through the tree, tracking `sum` — the running total from the root to the current node.
+3. At each node, add the node's value to `sum`. Then check `mp[sum - target]` — if that prefix sum has occurred before on this path, add its count to `ans` (each occurrence represents a valid path ending at the current node).
+4. Increment `mp[sum]` to record this node's prefix sum before recursing into children.
+5. After recursing into both children, **decrement `mp[sum]`** — this is the backtracking step, removing the current node's contribution once we're done exploring its subtree, so sibling branches don't incorrectly see this path's prefix sums.
+6. `ans`, a class member variable, accumulates the total count across the whole traversal and is returned at the end.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n)` — each node is visited once, with `O(1)` average-time hash map operations at each step.
+- **Space complexity:** `O(n)` — for the hash map (which can hold up to one entry per node on the current path) plus `O(h)` recursion stack space.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method and a private recursive DFS helper), using a prefix-sum hash map with backtracking.
+
+```cpp
+class Solution {
+public:
+    int pathSum(TreeNode* root, int targetSum) {
+        unordered_map<long long, int> mp;
+        mp[0] = 1;
+        ans = 0;
+
+        dfs(root, 0, targetSum, mp);
+
+        return ans;
+    }
+
+private:
+    int ans = 0;  // accumulates the total count across the whole traversal
+
+    void dfs(TreeNode* root, long long sum, int target,
+             unordered_map<long long, int>& mp) {
+
+        if (root == nullptr)
+            return;
+
+        sum += root->val;
+
+        if (mp.count(sum - target))
+            ans += mp[sum - target];
+
+        mp[sum]++;
+
+        dfs(root->left, sum, target, mp);
+        dfs(root->right, sum, target, mp);
+
+        mp[sum]--;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+A variable used across multiple recursive calls to accumulate a result (like `ans` here) needs to live outside the function itself — either as a class member variable or passed by reference — since a plain local variable would reset on every call instead of building up a total. Also worth noting: the "prefix sum + hash map" trick isn't just for arrays; it applies just as well to tree paths, as long as you remember to backtrack (`mp[sum]--`) after exploring each subtree.
+
+---
+✅ **Status:** Accepted — all test cases passed
