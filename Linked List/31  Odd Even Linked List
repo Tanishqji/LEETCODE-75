@@ -1,0 +1,72 @@
+# 🔀 LeetCode 75 — Day 31: Odd Even Linked List
+
+**📌 Problem:** [328. Odd Even Linked List](https://leetcode.com/problems/odd-even-linked-list/)
+**🏷️ Topics:** Linked List
+**⚡ Difficulty:** Medium
+
+---
+
+## 🧠 Intuition
+
+Since nodes need to be regrouped by position (odd-indexed first, then even-indexed) without creating a new list, this is a job for **two pointers weaving through the same list simultaneously** — one tracking the current odd node, one tracking the current even node. At each step, each pointer skips over the other group's node to link directly to its own next same-parity node.
+
+---
+
+## 🛠️ Approach
+
+1. Handle trivial cases first: an empty list or a single-node list is already "grouped" correctly — return `head` as is.
+2. Set `odd = head` and `even = head->next`. Save `evenStart = head->next` too, since it's needed later to attach the even chain after the odd chain.
+3. While `even` and `even->next` are both non-null:
+   - Relink `odd->next` to skip over the even node and point to the next odd node (`even->next`).
+   - Relink `even->next` to skip over the next odd node and point to the next even node (`even->next->next`).
+   - Advance both `odd` and `even` to their new positions.
+4. Once the loop ends, attach the even chain to the end of the odd chain: `odd->next = evenStart`.
+5. Return `head` — the list is now odd-first, even-second, with each sublist keeping its original relative order.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n)` — a single pass through the list, advancing both pointers together.
+- **Space complexity:** `O(1)` — the list is rearranged in place using existing nodes; no new nodes are created.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), using two interleaved pointers (`odd`, `even`) on `ListNode*` to rewire the list in place.
+
+```cpp
+class Solution {
+public:
+    ListNode* oddEvenList(ListNode* head) {
+        
+        if (head == nullptr || head->next == nullptr) {
+            return head;
+        }
+        ListNode* odd = head;
+        ListNode* even = head->next;
+        ListNode* evenStart = head->next;
+
+        while (even != nullptr && even->next != nullptr) {
+            odd->next = even->next;
+            even->next = even->next->next;
+
+            odd = odd->next;
+            even = even->next;
+        }
+        odd->next = evenStart;
+
+        return head;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+Always double-check base cases against the actual expected output, not just "does it avoid crashing." Returning `nullptr` for a single-node list *compiles fine and doesn't crash* — but it silently produces the wrong answer, since the correct result for a trivial input is often the input itself, not an empty result.
+
+---
+✅ **Status:** Accepted — all test cases passed
