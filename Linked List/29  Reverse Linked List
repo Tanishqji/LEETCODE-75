@@ -1,0 +1,61 @@
+# 🔗 LeetCode 75 — Day 29: Reverse Linked List
+
+**📌 Problem:** [206. Reverse Linked List](https://leetcode.com/problems/reverse-linked-list/)
+**🏷️ Topics:** Linked List, Recursion
+**⚡ Difficulty:** Easy
+
+---
+
+## 🧠 Intuition
+
+Reversing a linked list just means flipping the direction every `next` pointer points in. Since each node only knows about the one after it, we need to walk through the list while keeping track of the node we just came from — so that when we move to the next node, we can point it backward instead of forward.
+
+---
+
+## 🛠️ Approach
+
+1. Use two pointers: `prev` (starts as `nullptr`, since the new tail should point to nothing) and `curr` (starts at `head`).
+2. While `curr` isn't null:
+   - Save `curr->next` in a temporary variable `temp` — this is needed because we're about to overwrite `curr->next`, and we still need to move forward to it.
+   - Flip the pointer: `curr->next = prev`.
+   - Advance both pointers: `prev = curr`, then `curr = temp`.
+3. Once the loop ends (`curr` is null), `prev` is sitting on what used to be the last node — now the new head of the reversed list. Return `prev`.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n)` — each node is visited exactly once.
+- **Space complexity:** `O(1)` — only a constant number of pointers are used, no extra data structures.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), using an iterative three-pointer technique (`prev`, `curr`, `temp`) on `ListNode*`.
+
+```cpp
+class Solution {
+public:
+    ListNode* reverseList(ListNode* head) {
+        ListNode* prev = nullptr;
+        ListNode* curr = head;
+        while (curr != nullptr) {
+            ListNode* temp = curr->next; // Store the next node
+            curr->next = prev;            // Reverse the current node's pointer
+            prev = curr;                  // Move prev to current node
+            curr = temp;                  // Move to the next node
+        }
+        return prev; // New head of the reversed list
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+Whenever a linked list problem needs a pointer changed, always save the "next" reference *before* overwriting it — otherwise the rest of the list becomes unreachable. This `prev`/`curr`/`temp` pattern is the foundation for a lot of other linked-list manipulation problems, not just reversal.
+
+---
+✅ **Status:** Accepted — all test cases passed
