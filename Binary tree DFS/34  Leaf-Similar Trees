@@ -1,0 +1,73 @@
+# 🍃 LeetCode 75 — Day 34: Leaf-Similar Trees
+
+**📌 Problem:** [872. Leaf-Similar Trees](https://leetcode.com/problems/leaf-similar-trees/)
+**🏷️ Topics:** Tree, Binary Tree, DFS
+**⚡ Difficulty:** Easy
+
+---
+
+## 🧠 Intuition
+
+Two trees are "leaf-similar" if the sequence of their leaf values, read left to right, matches exactly. So the problem really becomes: extract each tree's leaf sequence as a string, then just compare the two strings.
+
+---
+
+## 🛠️ Approach
+
+1. Write a helper `inOrder(root, s)` that does a DFS through the tree, building up a string `s` as it goes:
+   - If `root` is null, there's nothing to do — return.
+   - If `root` is a leaf (no left and no right child), append its value (plus a separator, `"-"`) to `s`, then return.
+   - Otherwise, recurse into the left subtree first, then the right subtree — this preserves the left-to-right leaf order.
+2. In `leafSimilar`, run this helper on both `root1` and `root2`, collecting their leaf sequences into `s1` and `s2`.
+3. Return `s1 == s2` — if the leaf sequences match exactly, the trees are leaf-similar.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n + m)` — each tree is fully traversed once, where `n` and `m` are the number of nodes in each tree.
+- **Space complexity:** `O(n + m)` — for the two leaf-sequence strings, plus `O(h)` recursion stack space for the DFS (where `h` is the tree's height).
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), using a DFS helper that builds a string by reference (`string&`) across recursive calls.
+
+```cpp
+class Solution {
+public:
+
+    void inOrder(TreeNode* root, string& s) {
+        if (root == NULL)
+            return;
+
+        if (root->left == NULL && root->right == NULL) {
+            s += to_string(root->val) + "-";
+            return;
+        }
+
+        inOrder(root->left, s);
+        inOrder(root->right, s);
+    }
+
+    bool leafSimilar(TreeNode* root1, TreeNode* root2) {
+        string s1 = "";
+        string s2 = "";
+
+        inOrder(root1, s1);
+        inOrder(root2, s2);
+
+        return s1 == s2;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+A stray semicolon right after an `if` condition (`if (condition);`) is one of the sneakiest bugs in C++ — it compiles without any warning in most setups, silently turns the `if` into a no-op, and makes whatever comes next run unconditionally. Always double check that there's no `;` sitting between an `if(...)` and its intended body.
+
+---
+✅ **Status:** Accepted — all test cases passed
