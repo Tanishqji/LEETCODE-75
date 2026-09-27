@@ -1,0 +1,126 @@
+# ⚡ LeetCode 75 — Day 37:# ⚡ LeetCode 75 — Day 37: Longest ZigZag Path in a Binary Tree
+
+**📌 Problem:** [1372. Longest ZigZag Path in a Binary Tree](https://leetcode.com/problems/longest-zigzag-path-in-a-binary-tree/)
+**🏷️ Topics:** Tree, Binary Tree, DFS, Dynamic Programming
+**⚡ Difficulty:** Medium
+
+---
+
+## 🧠 Intuition
+
+A zigzag path alternates left-right-left-right as it goes down the tree. So at every node, what matters is: "if the edge I just took to get here was a **left** edge, how long is the zigzag ending here?" and separately, "if it was a **right** edge, how long is it?" Each of these two values can be built up from the parent's values as the DFS goes down — no need to explore every possible path explicitly.
+
+---
+
+## 🛠️ Approach
+
+1. Track two values passed down through recursion: `left` (the zigzag length ending at the current node, assuming the edge used to arrive here was a **left** edge) and `right` (same, but for a **right** edge).
+2. At each node, update the global `maxPath` with `max(maxPath, left, right)` — whichever of the two is the longer zigzag path reaching this node.
+3. Recurse into the left child via `solve(root->left, right + 1, 0)`: arriving via a left edge means this extends the zigzag that previously ended with a *right* edge at the parent, so the new "left" value is `right + 1`. The new "right" value resets to `0`, since we didn't arrive via a right edge.
+4. Symmetrically, recurse into the right child via `solve(root->right, 0, left + 1)`.
+5. After the full traversal, `maxPath` holds the length of the longest zigzag path found anywhere in the tree.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n)` — every node is visited exactly once.
+- **Space complexity:** `O(h)` — recursion stack space, where `h` is the height of the tree.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method and a private-style recursive helper), passing two running zigzag lengths down through the DFS.
+
+```cpp
+class Solution {
+public:
+    int maxPath = 0;
+
+    void solve(TreeNode* root, int left, int right) {
+        if (root == nullptr)
+            return;
+
+        maxPath = max({maxPath, left, right});
+
+        solve(root->left, right + 1, 0);
+        solve(root->right, 0, left + 1);
+    }
+    int longestZigZag(TreeNode* root) {
+        solve(root, 0, 0);
+        return maxPath;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+When a path's validity depends on *alternating* something (direction, parity, type), it's often cleanest to track two separate running values — one per "state" — rather than trying to detect the alternation after the fact. Here, carrying both a left-ending and right-ending length through every recursive call avoids ever needing to check "did I just zig or zag" explicitly.
+
+---
+✅ **Status:** Accepted — all test cases passed
+**📌 Problem:** [1372. Longest ZigZag Path in a Binary Tree](https://leetcode.com/problems/longest-zigzag-path-in-a-binary-tree/)
+**🏷️ Topics:** Tree, Binary Tree, DFS, Dynamic Programming
+**⚡ Difficulty:** Medium
+
+---
+
+## 🧠 Intuition
+
+A zigzag path alternates left-right-left-right as it goes down the tree. So at every node, what matters is: "if the edge I just took to get here was a **left** edge, how long is the zigzag ending here?" and separately, "if it was a **right** edge, how long is it?" Each of these two values can be built up from the parent's values as the DFS goes down — no need to explore every possible path explicitly.
+
+---
+
+## 🛠️ Approach
+
+1. Track two values passed down through recursion: `left` (the zigzag length ending at the current node, assuming the edge used to arrive here was a **left** edge) and `right` (same, but for a **right** edge).
+2. At each node, update the global `maxPath` with `max(maxPath, left, right)` — whichever of the two is the longer zigzag path reaching this node.
+3. Recurse into the left child via `solve(root->left, right + 1, 0)`: arriving via a left edge means this extends the zigzag that previously ended with a *right* edge at the parent, so the new "left" value is `right + 1`. The new "right" value resets to `0`, since we didn't arrive via a right edge.
+4. Symmetrically, recurse into the right child via `solve(root->right, 0, left + 1)`.
+5. After the full traversal, `maxPath` holds the length of the longest zigzag path found anywhere in the tree.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n)` — every node is visited exactly once.
+- **Space complexity:** `O(h)` — recursion stack space, where `h` is the height of the tree.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method and a private-style recursive helper), passing two running zigzag lengths down through the DFS.
+
+```cpp
+class Solution {
+public:
+    int maxPath = 0;
+
+    void solve(TreeNode* root, int left, int right) {
+        if (root == nullptr)
+            return;
+
+        maxPath = max({maxPath, left, right});
+
+        solve(root->left, right + 1, 0);
+        solve(root->right, 0, left + 1);
+    }
+    int longestZigZag(TreeNode* root) {
+        solve(root, 0, 0);
+        return maxPath;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+When a path's validity depends on *alternating* something (direction, parity, type), it's often cleanest to track two separate running values — one per "state" — rather than trying to detect the alternation after the fact. Here, carrying both a left-ending and right-ending length through every recursive call avoids ever needing to check "did I just zig or zag" explicitly.
+
+---
+✅ **Status:** Accepted — all test cases passed
