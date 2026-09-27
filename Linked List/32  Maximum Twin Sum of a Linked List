@@ -1,0 +1,83 @@
+# 👯 LeetCode 75 — Day 32: Maximum Twin Sum of a Linked List
+
+**📌 Problem:** [2130. Maximum Twin Sum of a Linked List](https://leetcode.com/problems/maximum-twin-sum-of-a-linked-list/)
+**🏷️ Topics:** Linked List, Two Pointers, Stack
+**⚡ Difficulty:** Medium
+
+---
+
+## 🧠 Intuition
+
+A "twin" pair is the `i`-th node from the front and the `i`-th node from the back — but a singly linked list can't be walked backward directly. The trick is to combine two familiar techniques: use slow/fast pointers to find the middle, then **reverse the second half** of the list. Once reversed, the second half's nodes line up in exactly the right order to be walked forward alongside the first half — pairing them up becomes a simple simultaneous traversal.
+
+---
+
+## 🛠️ Approach
+
+1. Find the middle of the list using slow/fast pointers — `slow` ends up at the start of the second half.
+2. Reverse the second half in place, starting from `mid` (the standard `prev`/`nextNode` iterative reversal). After this, `prev` points to the new head of the reversed second half.
+3. Walk two pointers simultaneously: `curr` starting from the original `head` (first half), and `prev` starting from the reversed second half's head.
+4. At each step, compute `curr->val + prev->val` — this is exactly the twin sum for that pair — and update `result` with the maximum seen so far.
+5. Advance both pointers until `prev` becomes null (the reversed half is fully walked), and return `result`.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n)` — finding the middle, reversing the second half, and comparing pairs are each a single linear pass.
+- **Space complexity:** `O(1)` — the list is reversed and compared in place; no extra data structures are used.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), combining slow/fast pointers, in-place reversal, and paired traversal — all on `ListNode*`.
+
+```cpp
+class Solution {
+public:
+    int pairSum(ListNode* head) {
+        ListNode* mid = NULL;
+        
+        ListNode* slow = head;
+        ListNode* fast = head;
+        
+        while (fast && fast->next) {
+            slow = slow->next;
+            fast = fast->next->next;
+        }
+        mid = slow;
+        
+        // Reversing Part
+        ListNode* nextNode = NULL;
+        ListNode* prev = NULL;
+        while (mid) {
+            nextNode = mid->next;
+            mid->next = prev;
+            prev = mid;
+            mid = nextNode;
+        }
+        // Reversing Part
+        
+        // find max sum of twin pairs
+        ListNode* curr = head;
+        int result = 0;
+        while (prev) {
+            result = max(result, curr->val + prev->val);
+            curr = curr->next;
+            prev = prev->next;
+        }
+        
+        return result;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+When a problem needs to pair the front and back of a singly linked list, reversing the second half in place is a clean way to make backward-facing comparisons possible without extra storage — it's a nice example of combining two separate linked-list techniques (fast/slow pointers + reversal) to solve a problem neither one handles alone.
+
+---
+✅ **Status:** Accepted — all test cases passed
