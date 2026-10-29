@@ -1,0 +1,119 @@
+# 🍊 LeetCode 75 — Day 47: Rotting Oranges
+
+**📌 Problem:** [994. Rotting Oranges](https://leetcode.com/problems/rotting-oranges/)
+**🏷️ Topics:** Array, Matrix, BFS
+**⚡ Difficulty:** Medium
+
+---
+
+## 🧠 Intuition
+
+Rot spreads outward from *every* rotten orange simultaneously, one minute at a time — that's a **multi-source BFS**: instead of starting from a single point, seed the queue with every rotten orange at once, and let them all expand together, level by level (minute by minute).
+
+---
+
+## 🛠️ Approach
+
+1. Scan the grid once: push every already-rotten orange (`2`) into the queue, and count every fresh orange (`1`) into `fresh`.
+2. Run BFS while the queue isn't empty **and** there are still fresh oranges left:
+   - Increment `time` for this new minute.
+   - Process every orange currently in the queue (a full "level" = one minute's worth of spreading): for each of its 4 neighbors, if that neighbor is fresh (`1`), rot it (`set to 2`), push it into the queue, and decrement `fresh`.
+3. Once the loop ends, check `fresh`: if any fresh oranges remain, they were unreachable — return `-1`. Otherwise, return `time`, the total minutes elapsed.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n * m)` — every cell in the grid is visited and processed at most once.
+- **Space complexity:** `O(n * m)` — for the BFS queue in the worst case (a grid full of rotten oranges to start).
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method and a `valid()` helper), using multi-source BFS seeded with all initially-rotten oranges.
+
+```cpp
+class Solution {
+public:
+
+    int x[4] = {-1, 1, 0, 0};
+    int y[4] = {0, 0, -1, 1};
+
+    bool valid(int i, int j, int n, int m) {
+
+        if (i < 0 || i >= n || j < 0 || j >= m)
+            return false;
+
+        return true;
+    }
+
+    int orangesRotting(vector<vector<int>>& grid) {
+
+        int n = grid.size();
+        int m = grid[0].size();
+
+        queue<pair<int, int>> q;
+
+        int fresh = 0;
+        int time = 0;
+
+        // Put all rotten oranges into queue
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (grid[i][j] == 2) {
+                    q.push({i, j});
+                }
+                else if (grid[i][j] == 1) {
+                    fresh++;
+                }
+            }
+        }
+
+        // BFS
+        while (!q.empty() && fresh > 0) {
+
+            time++;
+
+            int s = q.size();
+
+            while (s--) {
+
+                pair<int, int> p = q.front();
+                q.pop();
+
+                int r = p.first;
+                int c = p.second;
+
+                for (int k = 0; k < 4; k++) {
+
+                    int row = r + x[k];
+                    int col = c + y[k];
+
+                    if (valid(row, col, n, m) &&
+                        grid[row][col] == 1) {
+
+                        grid[row][col] = 2;
+                        q.push({row, col});
+                        fresh--;
+                    }
+                }
+            }
+        }
+
+        if (fresh > 0)
+            return -1;
+
+        return time;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+When something spreads from multiple starting points at the same time (rot, fire, infection, flood-fill from several seeds), seed the BFS queue with *all* of them upfront rather than running separate BFS calls — the level-by-level structure of BFS then naturally models simultaneous spreading, with each level representing one full time unit.
+
+---
+✅ **Status:** Accepted — all test cases passed
