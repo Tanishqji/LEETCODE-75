@@ -1,0 +1,77 @@
+# 🛣️ LeetCode 75 — Day 44: Reorder Routes to Make All Paths Lead to the City Zero
+
+**📌 Problem:** [1466. Reorder Routes to Make All Paths Lead to the City Zero](https://leetcode.com/problems/reorder-routes-to-make-all-paths-lead-to-the-city-zero/)
+**🏷️ Topics:** Graph, DFS, BFS
+**⚡ Difficulty:** Medium
+
+---
+
+## 🧠 Intuition
+
+The road network forms a tree (n cities, n-1 roads), and we need every road to eventually lead *toward* city 0. If we run a DFS starting from city 0 and treat the roads as undirected for traversal purposes, then any edge we cross that was **originally pointing away** from 0 (i.e., in the same direction as our DFS traversal) is a road that needs to be reversed. Tagging each edge with its original direction when building the graph lets DFS detect this instantly as it walks the tree.
+
+---
+
+## 🛠️ Approach
+
+1. Build an adjacency list where each city stores its neighbors along with a flag: for connection `(a, b)` (an original road from `a` to `b`), add `adj[a] = {b, 1}` (meaning "traversing a→b follows the original direction — reversing needed if we go this way from the root") and `adj[b] = {a, 0}` (traversing b→a goes *against* the original direction — no reversal needed).
+2. Run a DFS from city `0`, passing along the `Parent` city to avoid immediately backtracking.
+3. At each neighbor `v` (with flag `check`), skip it if it's the parent we just came from. Otherwise:
+   - If `check == 1`, this edge originally pointed away from the root in the direction we're traveling — increment `count` (it needs reversing).
+   - Recurse into `v`.
+4. After the DFS covers the whole tree, `count` holds the minimum number of roads that must be reversed so every city can reach city 0.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n)` — the DFS visits every city and every edge exactly once, since the road network forms a tree with `n-1` edges.
+- **Space complexity:** `O(n)` — for the adjacency list, plus recursion stack depth up to `O(n)` in the worst case.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method, a recursive DFS helper, and a member `count` variable), using `unordered_map<int, vector<pair<int,int>>>` to store direction-tagged edges.
+
+```cpp
+class Solution {
+public:
+    int count = 0;
+    void dfs(int u, int Parent, unordered_map<int, vector<pair<int,int>>>& adj) {
+        for (auto& P : adj[u]) {
+            int v = P.first;
+            int check = P.second;
+
+            if (v != Parent) {
+                if (check == 1) {
+                    count++;
+                }
+                dfs(v, u, adj);
+            }
+        }
+    }
+    int minReorder(int n, vector<vector<int>>& connections) {
+        unordered_map<int, vector<pair<int,int>>> adj;
+
+        for (auto& vec : connections) {
+            int a = vec[0];
+            int b = vec[1];
+
+            adj[a].push_back({b, 1});
+            adj[b].push_back({a, 0});
+        }
+        dfs(0, -1, adj);
+        return count;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+When extracting multiple values from the same input row (`vec[0]`, `vec[1]`, etc.), it's an easy slip to accidentally reuse the same index twice — especially when both variables are being pulled from a similarly-named source. A copy-paste of `vec[0]` into a `b` variable is a classic version of this bug, and it compiles fine while silently producing meaningless data.
+
+---
+✅ **Status:** Accepted — all test cases passed
