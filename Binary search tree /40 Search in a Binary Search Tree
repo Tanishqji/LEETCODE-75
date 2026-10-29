@@ -1,0 +1,61 @@
+# 🔍 LeetCode 75 — Day 40: Search in a Binary Search Tree
+
+**📌 Problem:** [700. Search in a Binary Search Tree](https://leetcode.com/problems/search-in-a-binary-search-tree/)
+**🏷️ Topics:** Tree, Binary Search Tree, Binary Search
+**⚡ Difficulty:** Easy
+
+---
+
+## 🧠 Intuition
+
+A BST's defining property — everything in the left subtree is smaller, everything in the right subtree is bigger — means we never have to check both subtrees at any step. At each node, comparing the target value to the current node's value immediately tells us which single direction to continue searching in.
+
+---
+
+## 🛠️ Approach
+
+1. Base case: if `root` is null, the value doesn't exist in this subtree — return `nullptr`.
+2. If `root->val == val`, we've found it — return `root`.
+3. If `val < root->val`, the target can only exist in the left subtree (by BST property) — recurse into `root->left`.
+4. Otherwise (`val > root->val`), recurse into `root->right`.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(h)` — where `h` is the height of the tree, since each step eliminates one entire subtree from consideration. In the worst case (a skewed tree), this becomes `O(n)`.
+- **Space complexity:** `O(h)` — recursion stack space, matching the tree's height.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), using simple recursion that leverages the BST ordering property.
+
+```cpp
+class Solution {
+public:
+    TreeNode* searchBST(TreeNode* root, int val) {
+
+        if (root == nullptr)
+            return nullptr;
+
+        if (root->val == val)
+            return root;
+
+        if (val < root->val)
+            return searchBST(root->left, val);
+
+        return searchBST(root->right, val);
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+This is the core reason BSTs are useful: the ordering property turns a search into a binary decision at every node, cutting the search space roughly in half each step — exactly like binary search on a sorted array, just expressed as a tree instead.
+
+---
+✅ **Status:** Accepted — all test cases passed
