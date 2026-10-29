@@ -1,0 +1,107 @@
+# ➗ LeetCode 75 — Day 45: Evaluate Division
+
+**📌 Problem:** [399. Evaluate Division](https://leetcode.com/problems/evaluate-division/)
+**🏷️ Topics:** Graph, DFS, Union Find
+**⚡ Difficulty:** Medium
+
+---
+
+## 🧠 Intuition
+
+Each equation like `a / b = 2.0` can be thought of as two directed, weighted edges in a graph: `a → b` with weight `2.0`, and `b → a` with weight `1/2.0`. Answering a query `a / c` then just becomes "find a path from `a` to `c`, multiplying the edge weights along the way" — a classic graph traversal problem.
+
+---
+
+## 🛠️ Approach
+
+1. Build a graph (`unordered_map<string, vector<pair<string, double>>>`) from the equations: for each `equations[i] = [a, b]` with value `v`, add edge `a → b` with weight `v`, and the reverse edge `b → a` with weight `1/v`.
+2. For each query `(start, end)`:
+   - If either `start` or `end` doesn't even exist in the graph, the answer is immediately `-1.0` (unknown variable).
+   - Otherwise, run a DFS from `start` toward `end`, using a fresh `visited` set for this query.
+3. Inside the DFS: if the current node equals the target, return `1.0` (base case — multiplying by 1 changes nothing). Otherwise, mark the current node visited, then try every unvisited neighbor: recurse into it, and if that recursive call succeeds (doesn't return `-1.0`), multiply the edge's weight by the recursive result and return it. If no neighbor leads to a valid path, return `-1.0`.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(Q * (V + E))` — where `Q` is the number of queries, and each query's DFS can visit up to all `V` variables and `E` relationships in the worst case.
+- **Space complexity:** `O(V + E)` — for the graph itself, plus `O(V)` for the `visited` set and recursion stack per query.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method and a recursive DFS helper), using a weighted graph built from `unordered_map<string, vector<pair<string, double>>>`.
+
+```cpp
+class Solution {
+public:
+    double dfs(string cur, string target,
+               unordered_map<string, vector<pair<string, double>>>& graph,
+               unordered_set<string>& visited) {
+
+        if (cur == target)
+            return 1.0;
+
+        visited.insert(cur);
+
+        for (auto edge : graph[cur]) {
+            string next = edge.first;
+            double value = edge.second;
+
+            if (visited.count(next))
+                continue;
+
+            double result = dfs(next, target, graph, visited);
+
+            if (result != -1.0)
+                return value * result;
+        }
+
+        return -1.0;
+    }
+
+    vector<double> calcEquation(
+        vector<vector<string>>& equations,
+        vector<double>& values,
+        vector<vector<string>>& queries
+    ) {
+        unordered_map<string, vector<pair<string, double>>> graph;
+
+        for (int i = 0; i < equations.size(); i++) {
+            string a = equations[i][0];
+            string b = equations[i][1];
+
+            graph[a].push_back({b, values[i]});
+            graph[b].push_back({a, 1.0 / values[i]});
+        }
+
+        vector<double> answer;
+
+        for (auto query : queries) {
+            string start = query[0];
+            string end = query[1];
+
+            if (!graph.count(start) || !graph.count(end)) {
+                answer.push_back(-1.0);
+                continue;
+            }
+
+            unordered_set<string> visited;
+
+            answer.push_back(dfs(start, end, graph, visited));
+        }
+
+        return answer;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+Not every graph is made of plain nodes and edges — here the "edges" carry a multiplicative weight, and the DFS accumulates that weight along the path instead of just tracking reachability. Using a fresh `visited` set per query is also important: reusing one visited set across multiple queries would incorrectly block valid paths in later queries.
+
+---
+✅ **Status:** Accepted — all test cases passed
