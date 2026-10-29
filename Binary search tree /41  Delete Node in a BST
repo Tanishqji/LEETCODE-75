@@ -1,0 +1,85 @@
+# 🗑️ LeetCode 75 — Day 41: Delete Node in a BST
+
+**📌 Problem:** [450. Delete Node in a BST](https://leetcode.com/problems/delete-node-in-a-bst/)
+**🏷️ Topics:** Tree, Binary Search Tree
+**⚡ Difficulty:** Medium
+
+---
+
+## 🧠 Intuition
+
+Deleting a node from a BST needs to preserve the BST property afterward — so the fix depends on how many children the node being deleted actually has. A node with 0 or 1 child is easy: just promote its remaining child (or nothing) to take its place. A node with 2 children is trickier: we need a replacement value that still keeps everything correctly ordered — and the **inorder successor** (the smallest value in the right subtree) is exactly that value.
+
+---
+
+## 🛠️ Approach
+
+1. Use BST search logic to locate the node: if `key < root->val`, recurse left; if `key > root->val`, recurse right — reassigning the result back so the tree stays connected.
+2. Once the target node is found (`key == root->val`), handle it by case:
+   - **No left child:** just return `root->right` — the right subtree takes this node's place.
+   - **No right child:** return `root->left` — same idea, mirrored.
+   - **Both children exist:** find the inorder successor — the leftmost node in the right subtree (`temp`), found by walking `temp->left` until it's null. Copy `temp->val` into `root->val`, then recursively delete that successor's original position from the right subtree (since its value now lives at `root`, and duplicating it would break the tree otherwise).
+3. Return `root` after handling the appropriate case — this reconnects the tree correctly at every level of the recursion.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(h)` — where `h` is the height of the tree: `O(h)` to find the node, plus (in the two-children case) another `O(h)` to find and delete the inorder successor.
+- **Space complexity:** `O(h)` — recursion stack space.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), using recursive BST search combined with the inorder-successor replacement technique.
+
+```cpp
+class Solution {
+public:
+    TreeNode* deleteNode(TreeNode* root, int key) {
+        if (root == NULL) {
+            return NULL;
+        }
+
+        if (key < root->val) {
+            root->left = deleteNode(root->left, key);
+        }
+        else if (key > root->val) {
+            root->right = deleteNode(root->right, key);
+        }
+        else {
+            // Case 1: no left child
+            if (root->left == NULL) {
+                return root->right;
+            }
+
+            // Case 2: no right child
+            if (root->right == NULL) {
+                return root->left;
+            }
+
+            // Case 3: both children
+            TreeNode* temp = root->right;
+
+            while (temp->left != NULL) {
+                temp = temp->left;
+            }
+
+            root->val = temp->val;
+            root->right = deleteNode(root->right, temp->val);
+        }
+
+        return root;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+When a node with two children needs to be removed from a BST, replacing its value with its inorder successor (or predecessor) and then deleting that successor's original node is the standard trick — it sidesteps the messier problem of rewiring both subtrees directly, since the successor is guaranteed to have at most one child itself.
+
+---
+✅ **Status:** Accepted — all test cases passed
