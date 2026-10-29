@@ -1,0 +1,87 @@
+# 🚪 LeetCode 75 — Day 46: Nearest Exit from Entrance in Maze
+
+**📌 Problem:** [1926. Nearest Exit from Entrance in Maze](https://leetcode.com/problems/nearest-exit-from-entrance-in-maze/)
+**🏷️ Topics:** Array, Matrix, BFS
+**⚡ Difficulty:** Medium
+
+---
+
+## 🧠 Intuition
+
+Finding the *shortest* path in an unweighted grid (every move costs the same — one step) is exactly what BFS is built for: exploring level by level guarantees that the first time we reach any cell, it's via the shortest possible path. An "exit" here is just any boundary cell that isn't the entrance itself.
+
+---
+
+## 🛠️ Approach
+
+1. Start a BFS from `entrance`, marking it visited immediately (using `'+'` to overwrite the cell in place — a neat trick to avoid a separate visited grid).
+2. Track `steps`, the number of moves taken so far.
+3. Process the queue level by level: for each cell popped off,
+   - If it's on the boundary of the maze **and** it isn't the entrance itself, it's a valid exit — return `steps`.
+   - Otherwise, expand into all 4 directions, pushing any unvisited, open (`!= '+'`) neighbor and marking it visited.
+4. After a full level is processed, increment `steps` before moving to the next level.
+5. If the queue empties without finding an exit, return `-1`.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(m * n)` — every cell in the maze is visited and processed at most once.
+- **Space complexity:** `O(m * n)` — for the BFS queue in the worst case (a maze with no walls).
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method), using BFS with an in-place visited marker (`'+'`) instead of a separate visited grid.
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> directions{{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+    int nearestExit(vector<vector<char>>& maze, vector<int>& entrance) {
+        int m = maze.size();
+        int n = maze[0].size();
+        
+        queue<pair<int, int>> que;
+        que.push({entrance[0], entrance[1]});
+        maze[entrance[0]][entrance[1]] = '+'; //marking it visited
+        int steps = 0;
+        
+        while (!que.empty()) {
+            int size = que.size();
+            
+            while (size--) {
+                pair<int, int> temp = que.front();
+                que.pop();
+                
+                if (temp != make_pair(entrance[0], entrance[1]) && 
+                   (temp.first == 0 || temp.first == m-1 || temp.second == 0 || temp.second == n-1))
+                    return steps;
+                
+                for (auto &dir : directions) {
+                    int i = temp.first + dir[0];
+                    int j = temp.second + dir[1];
+
+                    if (i >= 0 && i < m && j >= 0 && j < n && maze[i][j] != '+') {
+                        que.push({i, j});
+                        maze[i][j] = '+'; //marking it as visited
+                    }
+                }
+            }
+            steps++;
+        }
+        
+        return -1;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+Overwriting the grid itself as a visited marker (here, replacing open cells with `'+'`) is a handy space-saving trick for grid BFS/DFS problems — it avoids allocating a separate `visited` matrix, as long as the original grid values aren't needed again afterward.
+
+---
+✅ **Status:** Accepted — all test cases passed
