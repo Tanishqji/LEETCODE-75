@@ -1,0 +1,76 @@
+# 🏙️ LeetCode 75 — Day 43: Number of Provinces
+
+**📌 Problem:** [547. Number of Provinces](https://leetcode.com/problems/number-of-provinces/)
+**🏷️ Topics:** Graph, DFS, BFS, Union Find
+**⚡ Difficulty:** Medium
+
+---
+
+## 🧠 Intuition
+
+A "province" is just a group of cities that are all connected to each other, directly or indirectly — which is exactly what a **connected component** in a graph is. So the question becomes: how many separate connected components does this graph have? Each time DFS starts from a city that hasn't been visited yet, it's discovered a brand-new province, and DFS will then mark every city in that province as visited.
+
+---
+
+## 🛠️ Approach
+
+1. Keep a `visited` array of size `n` (one entry per city), all initialized to `false`, and a `count` starting at `0`.
+2. Loop through every city `i` from `0` to `n - 1`:
+   - If city `i` hasn't been visited yet, it must belong to a province we haven't counted — increment `count`, then run `dfs` from `i`.
+3. Inside `dfs(u)`:
+   - Mark `u` as visited.
+   - Loop through every other city `v`. If `v` hasn't been visited and `isConnected[u][v] == 1` (they're directly connected), recurse into `v`.
+   - This spreads out from `u` and marks the entire province before returning.
+4. After the loop finishes, `count` holds the total number of provinces.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n²)` — since the graph is given as an adjacency matrix, each city's DFS call scans an entire row of `n` entries, and every city is visited at most once.
+- **Space complexity:** `O(n)` — for the `visited` array, plus up to `O(n)` recursion stack depth in the worst case.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method, a recursive DFS helper, and a private member variable `n`), using a `vector<bool>` to track visited cities.
+
+```cpp
+class Solution {
+    int n;
+public:
+    void dfs(vector<vector<int>>& isConnected, int u, vector<bool>& visited) {
+        visited[u] = true;
+
+        for (int v = 0; v < n; v++) {
+            if (!visited[v] && isConnected[u][v] == 1) {
+                dfs(isConnected, v, visited);
+            }
+        }
+    }
+    int findCircleNum(vector<vector<int>>& isConnected) {
+        n = isConnected.size();
+
+        vector<bool> visited(n, false);
+        int count = 0;
+
+        for (int i = 0; i < n; i++) {
+            if (!visited[i]) {
+                count++;
+                dfs(isConnected, i, visited);
+            }
+        }
+        return count;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+Counting "groups" or "islands" in a graph is almost always a connected-components problem — loop over every node, and each time you find one that hasn't been visited yet, that's a new group. DFS (or BFS) from that node then floods the entire group so it never gets counted twice.
+
+---
+✅ **Status:** Accepted — all test cases passed
