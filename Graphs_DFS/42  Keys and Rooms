@@ -1,0 +1,70 @@
+# 🔑 LeetCode 75 — Day 42: Keys and Rooms
+
+**📌 Problem:** [841. Keys and Rooms](https://leetcode.com/problems/keys-and-rooms/)
+**🏷️ Topics:** Graph, DFS, BFS
+**⚡ Difficulty:** Medium
+
+---
+
+## 🧠 Intuition
+
+This is really a graph problem in disguise: each room is a node, and each key inside a room is an edge pointing to another room. Starting from room `0`, the question becomes "can we reach every node in the graph?" — which is exactly what a graph traversal (DFS or BFS) answers.
+
+---
+
+## 🛠️ Approach
+
+1. Create a `visited` array of size `n` (one entry per room), all initialized to `false`.
+2. Run a DFS starting from room `0`:
+   - Mark the current room as visited.
+   - Loop through every key found in this room — for each key pointing to a room that hasn't been visited yet, recursively DFS into that room.
+3. After the DFS finishes, scan through `visited`. If any room is still `false`, it was unreachable — return `false`. If every room was visited, return `true`.
+
+---
+
+## ⏱️ Complexity
+
+- **Time complexity:** `O(n + e)` — where `n` is the number of rooms and `e` is the total number of keys across all rooms; each room and each key is processed at most once.
+- **Space complexity:** `O(n)` — for the `visited` array, plus up to `O(n)` recursion stack depth in the worst case.
+
+---
+
+## 💻 Code
+
+**Language/Format:** C++ — solved using LeetCode's OOP submission format (`class Solution` with a public method and a recursive DFS helper), using a `vector<bool>` to track visited rooms.
+
+```cpp
+class Solution {
+public:
+    void dfs(vector<vector<int>>& rooms, int source, vector<bool>& visited) {
+
+        visited[source] = true;   
+        for (int& node : rooms[source]) {
+            if (!visited[node]) {
+                dfs(rooms, node, visited);
+            }
+        }
+    }
+    bool canVisitAllRooms(vector<vector<int>>& rooms) {
+        int n = rooms.size();
+        vector<bool> visited(n, false);
+        dfs(rooms, 0, visited);
+
+        for (bool x : visited) {
+            if (x == false) {
+                return false;
+            }
+        }
+        return true;
+    }
+};
+```
+
+---
+
+## 🔑 Key Takeaway
+
+Many problems that look like "unlock things using other things" are really just reachability questions on a graph in disguise. Once you spot that structure — items as nodes, "unlocks" as edges — a standard DFS or BFS from the starting point solves it, and a simple `visited` array is all the bookkeeping needed.
+
+---
+✅ **Status:** Accepted — all test cases passed
